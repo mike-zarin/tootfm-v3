@@ -1,0 +1,400 @@
+// apps/web/lib/storage.ts
+
+import { promises as fs } from 'fs';
+import path from 'path';
+import { User, Party, Track, Membership, Vote, MusicProfile } from '@/types';
+
+interface StorageData {
+  users: User[];
+  parties: Party[];
+  tracks: Track[];
+  memberships: Membership[];
+  votes?: Vote[];
+  musicProfiles?: MusicProfile[];
+}
+
+class Storage {
+  private filePath: string;
+
+  constructor() {
+    this.filePath = path.join(process.cwd(), 'data.json');
+  }
+
+  async read(): Promise<StorageData> {
+    try {
+      const data = await fs.readFile(this.filePath, 'utf-8');
+      const parsed = JSON.parse(data);
+      
+      // Добавляем votes и musicProfiles если их нет (для обратной совместимости)
+      if (!parsed.votes) {
+        parsed.votes = [];
+      }
+      if (!parsed.musicProfiles) {
+        parsed.musicProfiles = [];
+      }
+      
+      return parsed;
+    } catch (error) {
+      console.log('Creating new data.json file at:', this.filePath);
+      const emptyData: StorageData = {
+        users: [],
+        parties: [],
+        tracks: [],
+        memberships: [],
+        votes: [],
+        musicProfiles: []
+      };
+      await this.write(emptyData);
+      return emptyData;
+    }
+  }
+
+  async write(data: StorageData): Promise<void> {
+    try {
+      await fs.writeFile(this.filePath, JSON.stringify(data, null, 2));
+    } catch (error) {
+      console.error('Error writing to storage:', error);
+      throw error;
+    }
+  }
+
+  // User methods
+  async getUsers(): Promise<User[]> {
+    const data = await this.read();
+    return data.users || [];
+  }
+
+  async getUser(id: string): Promise<User | undefined> {
+    const data = await this.read();
+    return data.users?.find(u => u.id === id);
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const data = await this.read();
+    return data.users?.find(u => u.email === email);
+  }
+
+  async createUser(user: User): Promise<User> {
+    const data = await this.read();
+    if (!data.users) data.users = [];
+    data.users.push(user);
+    await this.write(data);
+    return user;
+  }
+
+  async updateUser(id: string, updates: Partial<User>): Promise<User | null> {
+    const data = await this.read();
+    if (!data.users) return null;
+    const index = data.users.findIndex(u => u.id === id);
+    if (index === -1) return null;
+    
+    data.users[index] = { ...data.users[index], ...updates, updatedAt: new Date().toISOString() };
+    await this.write(data);
+    return data.users[index];
+  }
+
+  // Party methods
+  async getParties(): Promise<Party[]> {
+    const data = await this.read();
+    return data.parties || [];
+  }
+
+  async getParty(id: string): Promise<Party | undefined> {
+    const data = await this.read();
+    return data.parties?.find(p => p.id === id);
+  }
+
+  async findPartyById(id: string): Promise<Party | undefined> {
+    return this.getParty(id);
+  }
+
+  async getPartyByCode(code: string): Promise<Party | undefined> {
+    const data = await this.read();
+    return data.parties?.find(p => p.code === code);
+  }
+
+  async createParty(party: Party): Promise<Party> {
+    const data = await this.read();
+    if (!data.parties) data.parties = [];
+    
+    // Генерируем ID если его нет
+    if (!party.id) {
+      party.id = `party_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+    
+    // Устанавливаем временные метки
+    party.createdAt = party.createdAt || new Date().toISOString();
+    party.updatedAt = party.updatedAt || new Date().toISOString();
+    
+    data.parties.push(party);
+    
+    // Автоматически создаем membership для хоста
+    if (!data.memberships) data.memberships = [];
+    data.memberships.push({
+      id: `membership_${Date.now()}`,
+      userId: party.hostId,
+      partyId: party.id,
+      role: 'host',
+      joinedAt: new Date().toISOString()
+    });
+    
+    await this.write(data);
+    return party;
+  }
+
+  async updateParty(id: string, updates: Partial<Party>): Promise<Party | null> {
+    const data = await this.read();
+    if (!data.parties) return null;
+    const index = data.parties.findIndex(p => p.id === id);
+    if (index === -1) return null;
+    
+    data.parties[index] = { ...data.parties[index], ...updates, updatedAt: new Date().toISOString() };
+    await this.write(data);
+    return data.parties[index];
+  }
+
+  // Membership methods
+  async getMemberships(): Promise<Membership[]> {
+    const data = await this.read();
+    return data.memberships || [];
+  }
+
+  async createMembership(membership: Membership): Promise<Membership> {
+    const data = await this.read();
+    if (!data.memberships) data.memberships = [];
+    
+    // Проверяем, нет ли уже такого membership
+    const existing = data.memberships.find(m => 
+      m.userId === membership.userId && m.partyId === membership.partyId
+    );
+    
+    if (existing) {
+      return existing;
+    }
+    
+    data.memberships.push(membership);
+    await this.write(data);
+    return membership;
+  }
+
+  async getMembership(userId: string, partyId: string): Promise<Membership | undefined> {
+    const data = await this.read();
+    return data.memberships?.find(m => m.userId === userId && m.partyId === partyId);
+  }
+
+  async getPartyMembers(partyId: string): Promise<Array<{ userId: string; role: string; user?: User }>> {
+    const data = await this.read();
+    const memberships = data.memberships?.filter(m => m.partyId === partyId) || [];
+    
+    // Обогащаем данными пользователя
+    return memberships.map(m => ({
+      userId: m.userId,
+      role: m.role,
+      user: data.users?.find(u => u.id === m.userId)
+    }));
+  }
+
+  // Track methods
+  async getTracks(partyId: string): Promise<Track[]> {
+    const data = await this.read();
+    return data.tracks?.filter(t => t.partyId === partyId) || [];
+  }
+
+  async createTrack(track: Track): Promise<Track> {
+    const data = await this.read();
+    if (!data.tracks) data.tracks = [];
+    
+    // Генерируем ID если его нет
+    if (!track.id) {
+      track.id = `track_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+    
+    // Устанавливаем позицию если её нет
+    if (track.position === undefined) {
+      const partyTracks = data.tracks.filter(t => t.partyId === track.partyId);
+      track.position = partyTracks.length;
+    }
+    
+    track.createdAt = track.createdAt || new Date().toISOString();
+    
+    data.tracks.push(track);
+    await this.write(data);
+    return track;
+  }
+
+  async updateTrack(id: string, updates: Partial<Track>): Promise<Track | null> {
+    const data = await this.read();
+    if (!data.tracks) return null;
+    const index = data.tracks.findIndex(t => t.id === id);
+    if (index === -1) return null;
+    
+    data.tracks[index] = { ...data.tracks[index], ...updates };
+    await this.write(data);
+    return data.tracks[index];
+  }
+
+  async deleteTrack(id: string): Promise<boolean> {
+    const data = await this.read();
+    if (!data.tracks) return false;
+    
+    const initialLength = data.tracks.length;
+    data.tracks = data.tracks.filter(t => t.id !== id);
+    
+    if (data.tracks.length < initialLength) {
+      await this.write(data);
+      return true;
+    }
+    return false;
+  }
+
+  // Vote methods
+  async getVotes(trackId: string): Promise<Vote[]> {
+    const data = await this.read();
+    return data.votes?.filter(v => v.trackId === trackId) || [];
+  }
+
+  async createVote(vote: Vote): Promise<Vote> {
+    const data = await this.read();
+    if (!data.votes) data.votes = [];
+    
+    // Удаляем предыдущий голос пользователя за этот трек
+    data.votes = data.votes.filter(v => 
+      !(v.userId === vote.userId && v.trackId === vote.trackId)
+    );
+    
+    // Добавляем новый голос
+    if (!vote.id) {
+      vote.id = `vote_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+    vote.createdAt = vote.createdAt || new Date().toISOString();
+    
+    data.votes.push(vote);
+    await this.write(data);
+    return vote;
+  }
+
+  // Music Profile methods
+  async getMusicProfiles(userId: string): Promise<MusicProfile[]> {
+    const data = await this.read();
+    return data.musicProfiles?.filter(p => p.userId === userId) || [];
+  }
+
+  async getMusicProfile(userId: string, service: string): Promise<MusicProfile | undefined> {
+    const data = await this.read();
+    return data.musicProfiles?.find(p => p.userId === userId && p.service === service);
+  }
+
+  async createMusicProfile(profile: MusicProfile): Promise<MusicProfile> {
+    const data = await this.read();
+    if (!data.musicProfiles) data.musicProfiles = [];
+    
+    // Удаляем старый профиль если есть
+    data.musicProfiles = data.musicProfiles.filter(p => 
+      !(p.userId === profile.userId && p.service === profile.service)
+    );
+    
+    // Добавляем новый
+    if (!profile.id) {
+      profile.id = `music_profile_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+    profile.createdAt = profile.createdAt || new Date().toISOString();
+    profile.updatedAt = profile.updatedAt || new Date().toISOString();
+    
+    data.musicProfiles.push(profile);
+    await this.write(data);
+    return profile;
+  }
+
+  async updateMusicProfile(id: string, updates: Partial<MusicProfile>): Promise<MusicProfile | null> {
+    const data = await this.read();
+    if (!data.musicProfiles) return null;
+    const index = data.musicProfiles.findIndex(p => p.id === id);
+    if (index === -1) return null;
+    
+    data.musicProfiles[index] = { 
+      ...data.musicProfiles[index], 
+      ...updates, 
+      updatedAt: new Date().toISOString() 
+    };
+    await this.write(data);
+    return data.musicProfiles[index];
+  }
+
+  // Utility methods
+  async getUserParties(emailOrId: string): Promise<{ hosted: Party[], joined: Party[] }> {
+    const data = await this.read();
+    
+    // Находим пользователя
+    const user = data.users?.find(u => u.id === emailOrId || u.email === emailOrId);
+    const userId = user?.id || emailOrId;
+    
+    // Находим партии где пользователь хост
+    const hosted = data.parties?.filter(p => p.hostId === userId) || [];
+    
+    // Находим партии где пользователь участник
+    const membershipPartyIds = data.memberships
+      ?.filter(m => m.userId === userId && m.role !== 'host')
+      ?.map(m => m.partyId) || [];
+    
+    const joined = data.parties?.filter(p => membershipPartyIds.includes(p.id)) || [];
+    
+    return { hosted, joined };
+  }
+
+  async getPartyMemberCount(partyId: string): Promise<number> {
+    const data = await this.read();
+    return data.memberships?.filter(m => m.partyId === partyId).length || 0;
+  }
+
+  async getPartyTrackCount(partyId: string): Promise<number> {
+    const data = await this.read();
+    return data.tracks?.filter(t => t.partyId === partyId).length || 0;
+  }
+
+  async generateUniquePartyCode(): Promise<string> {
+    const data = await this.read();
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code: string;
+    let attempts = 0;
+    
+    do {
+      code = '';
+      for (let i = 0; i < 6; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      attempts++;
+      
+      if (attempts > 100) {
+        throw new Error('Could not generate unique party code');
+      }
+    } while (data.parties?.some(p => p.code === code));
+    
+    return code;
+  }
+}
+
+// Создаем единственный экземпляр
+export const storage = new Storage();
+
+// Экспортируем методы с привязкой контекста
+export const getUserParties = storage.getUserParties.bind(storage);
+export const getPartyMemberCount = storage.getPartyMemberCount.bind(storage);
+export const getPartyTrackCount = storage.getPartyTrackCount.bind(storage);
+export const generateUniquePartyCode = storage.generateUniquePartyCode.bind(storage);
+export const findPartyByCode = storage.getPartyByCode.bind(storage);
+export const findPartyById = storage.findPartyById.bind(storage);
+export const getPartyMembers = storage.getPartyMembers.bind(storage);
+export const createParty = storage.createParty.bind(storage);
+export const readData = storage.read.bind(storage);
+
+// Функция для присоединения к партии
+export const joinParty = async (partyId: string, userId: string) => {
+  const membership: Membership = {
+    id: `membership_${Date.now()}`,
+    userId,
+    partyId,
+    role: 'guest',
+    joinedAt: new Date().toISOString()
+  };
+  return storage.createMembership(membership);
+};

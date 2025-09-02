@@ -1,0 +1,19 @@
+TOOTFM CRITICAL ISSUES REPORT
+Generated: Sun Aug 31 17:12:42 EEST 2025
+=====================================
+
+CRITICAL ISSUES (6 found):
+❌   └─ SessionProvider MISSING in layout!
+❌ TypeScript compilation: 20 errors
+❌ Login endpoint - MISSING
+❌ OAuth callback - MISSING
+❌ Token refresh - MISSING
+❌ Potential hardcoded secrets found!
+
+RECOMMENDED FIXES:
+1. Run: bash /Users/mz/tootfm-v3/audit-reports/fix_commands_20250831_171229.sh
+2. Review and fix TypeScript errors
+3. Complete Spotify integration
+4. Add missing tests
+
+Health Score: 26%

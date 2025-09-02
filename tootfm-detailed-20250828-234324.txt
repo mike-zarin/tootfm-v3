@@ -1,0 +1,935 @@
+════════════════════════════════════════════════════════════════
+              TOOTFM DETAILED CODE AUDIT REPORT                 
+════════════════════════════════════════════════════════════════
+Date: Thu Aug 28 23:43:24 EEST 2025
+Directory: /Users/mz/tootfm-v3
+════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────┐
+│               1. STORAGE IMPLEMENTATION                      │
+└─────────────────────────────────────────────────────────────┘
+📦 File: apps/web/lib/storage.ts (first 150 lines)
+────────────────────────────────────────────────────────────────
+// apps/web/lib/storage.ts
+
+import { promises as fs } from 'fs';
+import path from 'path';
+import { User, Party, Track, Membership, Vote } from '@/types';
+
+interface StorageData {
+  users: User[];
+  parties: Party[];
+  tracks: Track[];
+  memberships: Membership[];
+  votes?: Vote[];  // Optional for backward compatibility
+}
+
+class Storage {
+  private filePath: string;
+
+  constructor() {
+    // Правильный путь к файлу data.json
+    this.filePath = path.join(process.cwd(), 'data.json');
+  }
+
+  async read(): Promise<StorageData> {
+    try {
+      const data = await fs.readFile(this.filePath, 'utf-8');
+      const parsed = JSON.parse(data);
+      
+      // Добавляем votes если их нет (для обратной совместимости)
+      if (!parsed.votes) {
+        parsed.votes = [];
+      }
+      
+      return parsed;
+    } catch (error) {
+      console.log('Creating new data.json file at:', this.filePath);
+      // If file doesn't exist, create it with empty data
+      const emptyData: StorageData = {
+        users: [],
+        parties: [],
+        tracks: [],
+        memberships: [],
+        votes: []
+      };
+      await this.write(emptyData);
+      return emptyData;
+    }
+  }
+
+  async write(data: StorageData): Promise<void> {
+    try {
+      await fs.writeFile(this.filePath, JSON.stringify(data, null, 2));
+    } catch (error) {
+      console.error('Error writing to storage:', error);
+      throw error;
+    }
+  }
+
+  // User methods
+  async getUsers(): Promise<User[]> {
+    const data = await this.read();
+    return data.users || [];
+  }
+
+  async getUser(id: string): Promise<User | undefined> {
+    const data = await this.read();
+    return data.users?.find(u => u.id === id);
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const data = await this.read();
+    return data.users?.find(u => u.email === email);
+  }
+
+  async createUser(user: User): Promise<User> {
+    const data = await this.read();
+    if (!data.users) data.users = [];
+    data.users.push(user);
+    await this.write(data);
+    return user;
+  }
+
+  async updateUser(id: string, updates: Partial<User>): Promise<User | null> {
+    const data = await this.read();
+    if (!data.users) return null;
+    const index = data.users.findIndex(u => u.id === id);
+    if (index === -1) return null;
+    
+    data.users[index] = { ...data.users[index], ...updates, updatedAt: new Date().toISOString() };
+    await this.write(data);
+    return data.users[index];
+  }
+
+  // Party methods
+  async getParties(): Promise<Party[]> {
+    const data = await this.read();
+    return data.parties || [];
+  }
+
+  async getParty(id: string): Promise<Party | undefined> {
+    const data = await this.read();
+    return data.parties?.find(p => p.id === id);
+  }
+
+  async getPartyByCode(code: string): Promise<Party | undefined> {
+    const data = await this.read();
+    return data.parties?.find(p => p.code === code);
+  }
+
+  async createParty(party: Party): Promise<Party> {
+    const data = await this.read();
+    if (!data.parties) data.parties = [];
+    data.parties.push(party);
+    await this.write(data);
+    return party;
+  }
+
+  async updateParty(id: string, updates: Partial<Party>): Promise<Party | null> {
+    const data = await this.read();
+    if (!data.parties) return null;
+    const index = data.parties.findIndex(p => p.id === id);
+    if (index === -1) return null;
+    
+    data.parties[index] = { ...data.parties[index], ...updates, updatedAt: new Date().toISOString() };
+    await this.write(data);
+    return data.parties[index];
+  }
+
+  // Membership methods
+  async getMemberships(): Promise<Membership[]> {
+    const data = await this.read();
+    return data.memberships || [];
+  }
+
+  async createMembership(membership: Membership): Promise<Membership> {
+    const data = await this.read();
+    if (!data.memberships) data.memberships = [];
+    data.memberships.push(membership);
+    await this.write(data);
+    return membership;
+  }
+
+  async getMembership(userId: string, partyId: string): Promise<Membership | undefined> {
+    const data = await this.read();
+    return data.memberships?.find(m => m.userId === userId && m.partyId === partyId);
+  }
+
+  // Track methods
+  async getTracks(partyId: string): Promise<Track[]> {
+    const data = await this.read();
+    return data.tracks?.filter(t => t.partyId === partyId) || [];
+
+────────────────────────────────────────────────────────────────
+
+┌─────────────────────────────────────────────────────────────┐
+│                  2. MAIN PAGE IMPLEMENTATION                 │
+└─────────────────────────────────────────────────────────────┘
+📄 File: apps/web/app/page.tsx (first 100 lines)
+────────────────────────────────────────────────────────────────
+// apps/web/app/page.tsx
+
+import { getServerSession } from 'next-auth';
+import { authConfig } from '@tootfm/auth';
+import { storage } from '@/lib/storage';
+import { ConnectSpotify } from '@/components/music/ConnectSpotify';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+
+export default async function HomePage() {
+  const session = await getServerSession(authConfig);
+  
+  if (!session?.user?.email) {
+    redirect('/auth/signin');
+  }
+  
+  // Получаем пользователя по email
+  const users = await storage.getUsers();
+  const user = users.find(u => u.email === session.user?.email);
+  
+  if (!user) {
+    // Создаем пользователя если его нет
+    await storage.createUser({
+      id: `user_${Date.now()}`,
+      email: session.user.email!,
+      name: session.user.name || "User",
+      image: session.user.image || null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+  }
+  
+  const userId = user?.id || session.user.email!;
+  const { hosted, joined } = await storage.getUserParties(userId);
+  
+  // Add counts
+  for (const party of [...hosted, ...joined]) {
+    (party as any).members = await storage.getPartyMemberCount(party.id);
+    (party as any).tracks = await storage.getPartyTrackCount(party.id);
+  }
+  
+  const hasParties = hosted.length > 0 || joined.length > 0;
+  
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-indigo-900">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold text-white mb-4">
+            🎵 tootFM
+          </h1>
+          <p className="text-xl text-purple-200">
+            Democratic DJ for your party
+          </p>
+          <div className="mt-4 text-sm text-purple-300">
+            Welcome, {session.user.name || session.user.email}
+          </div>
+        </div>
+        
+        {/* Spotify Connection */}
+        <div className="max-w-2xl mx-auto mb-8">
+          <ConnectSpotify />
+        </div>
+        
+        {/* Rest of your existing component... */}
+        {/* Quick Actions */}
+        <div className="max-w-4xl mx-auto mb-12">
+          <div className="grid md:grid-cols-2 gap-6">
+            <Link 
+              href="/party/create"
+              className="bg-purple-600 hover:bg-purple-700 text-white rounded-xl p-8 text-center transition-all transform hover:scale-105"
+            >
+              <div className="text-4xl mb-3">🎉</div>
+              <h2 className="text-xl font-bold">Create Party</h2>
+              <p className="text-purple-200 mt-2">Start a new music session</p>
+            </Link>
+            
+            <Link 
+              href="/party/join"
+              className="bg-pink-600 hover:bg-pink-700 text-white rounded-xl p-8 text-center transition-all transform hover:scale-105"
+            >
+              <div className="text-4xl mb-3">🎪</div>
+              <h2 className="text-xl font-bold">Join Party</h2>
+              <p className="text-pink-200 mt-2">Enter a party code</p>
+            </Link>
+          </div>
+        </div>
+        
+        {/* Active Parties */}
+        {hasParties && (
+          <div className="max-w-6xl mx-auto">
+            {hosted.length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold text-white mb-4">
+                  Your Parties
+                </h2>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {hosted.map(party => (
+                    <Link 
+                      key={party.id}
+
+────────────────────────────────────────────────────────────────
+
+┌─────────────────────────────────────────────────────────────┐
+│                  3. PARTIES API IMPLEMENTATION               │
+└─────────────────────────────────────────────────────────────┘
+🛣️ File: apps/web/app/api/parties/route.ts
+────────────────────────────────────────────────────────────────
+// apps/web/app/api/parties/route.ts
+
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authConfig } from '@tootfm/auth';
+import { 
+  readData, 
+  createParty, 
+  getUserParties,
+  generateUniquePartyCode,
+  getPartyMemberCount,
+  getPartyTrackCount
+} from '@/lib/storage';
+import { CreatePartyRequest, PartyWithCounts } from '@/types';
+import { z } from 'zod';
+
+const createPartySchema = z.object({
+  name: z.string().min(1).max(100),
+  description: z.string().optional(),
+  settings: z.object({
+    maxTracks: z.number().min(10).max(200).optional(),
+    autoPlay: z.boolean().optional(),
+    votingEnabled: z.boolean().optional(),
+    skipThreshold: z.number().min(0.1).max(1).optional()
+  }).optional()
+});
+
+// GET /api/parties
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getServerSession(authConfig);
+    
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
+    const { hosted, joined } = await getUserParties(session.user.id);
+    
+    // Add counts to parties
+    const partiesWithCounts: PartyWithCounts[] = [];
+    
+    for (const party of [...hosted, ...joined]) {
+      const members = await getPartyMemberCount(party.id);
+      const tracks = await getPartyTrackCount(party.id);
+      
+      partiesWithCounts.push({
+        ...party,
+        members,
+        tracks
+      });
+    }
+    
+    return NextResponse.json(partiesWithCounts);
+  } catch (error) {
+    console.error('Error fetching parties:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch parties' },
+      { status: 500 }
+    );
+  }
+}
+
+// POST /api/parties
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authConfig);
+    
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
+    const body = await request.json();
+    const data = createPartySchema.parse(body);
+    
+    const code = await generateUniquePartyCode();
+    
+    const party = await createParty({
+      code,
+      name: data.name,
+      description: data.description,
+      hostId: session.user.id,
+      hostName: session.user.name || session.user.email || 'Anonymous',
+      hostImage: session.user.image,
+      settings: {
+        maxTracks: data.settings?.maxTracks || 50,
+        autoPlay: data.settings?.autoPlay !== false,
+        votingEnabled: data.settings?.votingEnabled !== false,
+        skipThreshold: data.settings?.skipThreshold || 0.5
+      },
+      status: 'WAITING'
+    });
+    
+    const partyWithCounts: PartyWithCounts = {
+      ...party,
+
+🛣️ File: apps/web/app/api/parties/join/route.ts
+────────────────────────────────────────────────────────────────
+// apps/web/app/api/parties/join/route.ts
+
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authConfig } from '@tootfm/auth';
+import { findPartyByCode, joinParty, getPartyMembers } from '@/lib/storage';
+import { JoinPartyRequest, JoinPartyResponse } from '@/types';
+import { z } from 'zod';
+
+const joinPartySchema = z.object({
+  code: z.string().length(6).transform(val => val.toUpperCase())
+});
+
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authConfig);
+    
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized. Please sign in.' },
+        { status: 401 }
+      );
+    }
+    
+    const body: JoinPartyRequest = await request.json();
+    const { code } = joinPartySchema.parse(body);
+    
+    const party = await findPartyByCode(code);
+    
+    if (!party) {
+      return NextResponse.json(
+        { error: 'Party not found. Please check the code.' },
+        { status: 404 }
+      );
+    }
+    
+    if (party.status === 'ENDED') {
+      return NextResponse.json(
+        { error: 'This party has already ended.' },
+        { status: 400 }
+      );
+    }
+    
+    // Check if already a member
+    const members = await getPartyMembers(party.id);
+    const isMember = members.some(m => m.userId === session.user.id);
+    
+    if (isMember) {
+      const response: JoinPartyResponse = {
+        success: true,
+        id: party.id,
+        message: 'You are already a member of this party'
+      };
+      return NextResponse.json(response);
+    }
+    
+    // Add as member
+    await joinParty(party.id, session.user.id);
+    
+    console.log(`User ${session.user.id} joined party ${party.id}`);
+    
+    const response: JoinPartyResponse = {
+      success: true,
+      id: party.id,
+      message: `Successfully joined "${party.name}"`
+    };
+    
+    return NextResponse.json(response);
+    
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid party code format' },
+        { status: 400 }
+      );
+    }
+    
+    console.error('Join party error:', error);
+    return NextResponse.json(
+      { error: 'Failed to join party. Please try again.' },
+
+────────────────────────────────────────────────────────────────
+
+┌─────────────────────────────────────────────────────────────┐
+│                  4. TYPESCRIPT COMPILATION                   │
+└─────────────────────────────────────────────────────────────┘
+🔧 TypeScript Errors Check:
+────────────────────────────────────────────────────────────────
+.next/types/app/api/auth/[...nextauth]/route.ts(8,13): error TS2344: Type 'OmitWithTag<typeof import("/Users/mz/tootfm-v3/apps/web/app/api/auth/[...nextauth]/route"), "POST" | "config" | "generateStaticParams" | "revalidate" | "dynamic" | "dynamicParams" | "fetchCache" | ... 8 more ... | "PATCH", "">' does not satisfy the constraint '{ [x: string]: never; }'.
+  Property 'authOptions' is incompatible with index signature.
+    Type 'AuthOptions' is not assignable to type 'never'.
+app/api/auth/[...nextauth]/route.ts(57,22): error TS2339: Property 'id' does not exist on type '{ name?: string | null | undefined; email?: string | null | undefined; image?: string | null | undefined; }'.
+app/api/auth/spotify/callback/route.ts(68,11): error TS2322: Type '{ id: string; service: "spotify"; userId: string; accessToken: any; refreshToken: any; expiresAt: string; spotifyId: any; email: string; displayName: string | null | undefined; topTracks: never[]; topArtists: never[]; lastSyncedAt: null; createdAt: string; updatedAt: string; }' is not assignable to type 'MusicProfile'.
+  Types of property 'displayName' are incompatible.
+    Type 'string | null | undefined' is not assignable to type 'string | undefined'.
+      Type 'null' is not assignable to type 'string | undefined'.
+app/api/auth/spotify/callback/route.ts(70,53): error TS2345: Argument of type '{ id: string; service: "spotify"; userId: string; accessToken: any; refreshToken: any; expiresAt: string; spotifyId: any; email: string; displayName: string | null | undefined; topTracks: never[]; topArtists: never[]; lastSyncedAt: null; createdAt: string; updatedAt: string; }' is not assignable to parameter of type 'MusicProfile'.
+  Types of property 'displayName' are incompatible.
+    Type 'string | null | undefined' is not assignable to type 'string | undefined'.
+      Type 'null' is not assignable to type 'string | undefined'.
+app/api/music/profiles/route.ts(10,25): error TS2339: Property 'id' does not exist on type '{ name?: string | null | undefined; email?: string | null | undefined; image?: string | null | undefined; }'.
+app/api/music/profiles/route.ts(15,37): error TS2339: Property 'id' does not exist on type '{ name?: string | null | undefined; email?: string | null | undefined; image?: string | null | undefined; }'.
+app/api/parties/[id]/route.ts(7,3): error TS2305: Module '"@/lib/storage"' has no exported member 'findPartyById'.
+app/api/parties/[id]/route.ts(10,3): error TS2724: '"@/lib/storage"' has no exported member named 'getPartyMembers'. Did you mean 'getPartyMemberCount'?
+app/api/parties/[id]/route.ts(41,24): error TS2339: Property 'id' does not exist on type '{ name?: string | null | undefined; email?: string | null | undefined; image?: string | null | undefined; }'.
+app/api/parties/[id]/route.ts(43,39): error TS7006: Parameter 'm' implicitly has an 'any' type.
+app/api/parties/[id]/route.ts(43,57): error TS18048: 'session.user' is possibly 'undefined'.
+app/api/parties/[id]/route.ts(43,70): error TS2339: Property 'id' does not exist on type '{ name?: string | null | undefined; email?: string | null | undefined; image?: string | null | undefined; }'.
+app/api/parties/[id]/route.ts(56,30): error TS2339: Property 'id' does not exist on type '{ name?: string | null | undefined; email?: string | null | undefined; image?: string | null | undefined; }'.
+app/api/parties/join/route.ts(6,10): error TS2305: Module '"@/lib/storage"' has no exported member 'findPartyByCode'.
+app/api/parties/join/route.ts(6,27): error TS2305: Module '"@/lib/storage"' has no exported member 'joinParty'.
+app/api/parties/join/route.ts(6,38): error TS2724: '"@/lib/storage"' has no exported member named 'getPartyMembers'. Did you mean 'getPartyMemberCount'?
+app/api/parties/join/route.ts(7,10): error TS2305: Module '"@/types"' has no exported member 'JoinPartyRequest'.
+app/api/parties/join/route.ts(7,28): error TS2305: Module '"@/types"' has no exported member 'JoinPartyResponse'.
+app/api/parties/join/route.ts(18,25): error TS2339: Property 'id' does not exist on type '{ name?: string | null | undefined; email?: string | null | undefined; image?: string | null | undefined; }'.
+app/api/parties/join/route.ts(46,35): error TS7006: Parameter 'm' implicitly has an 'any' type.
+app/api/parties/join/route.ts(46,53): error TS18048: 'session.user' is possibly 'undefined'.
+app/api/parties/join/route.ts(46,66): error TS2339: Property 'id' does not exist on type '{ name?: string | null | undefined; email?: string | null | undefined; image?: string | null | undefined; }'.
+app/api/parties/join/route.ts(58,44): error TS2339: Property 'id' does not exist on type '{ name?: string | null | undefined; email?: string | null | undefined; image?: string | null | undefined; }'.
+app/api/parties/join/route.ts(60,38): error TS2339: Property 'id' does not exist on type '{ name?: string | null | undefined; email?: string | null | undefined; image?: string | null | undefined; }'.
+app/api/parties/route.ts(7,3): error TS2305: Module '"@/lib/storage"' has no exported member 'readData'.
+app/api/parties/route.ts(8,3): error TS2305: Module '"@/lib/storage"' has no exported member 'createParty'.
+app/api/parties/route.ts(10,3): error TS2305: Module '"@/lib/storage"' has no exported member 'generateUniquePartyCode'.
+app/api/parties/route.ts(14,10): error TS2305: Module '"@/types"' has no exported member 'CreatePartyRequest'.
+app/api/parties/route.ts(14,30): error TS2305: Module '"@/types"' has no exported member 'PartyWithCounts'.
+app/api/parties/route.ts(33,25): error TS2339: Property 'id' does not exist on type '{ name?: string | null | undefined; email?: string | null | undefined; image?: string | null | undefined; }'.
+app/api/parties/route.ts(40,66): error TS2339: Property 'id' does not exist on type '{ name?: string | null | undefined; email?: string | null | undefined; image?: string | null | undefined; }'.
+app/api/parties/route.ts(71,25): error TS2339: Property 'id' does not exist on type '{ name?: string | null | undefined; email?: string | null | undefined; image?: string | null | undefined; }'.
+app/api/parties/route.ts(87,28): error TS2339: Property 'id' does not exist on type '{ name?: string | null | undefined; email?: string | null | undefined; image?: string | null | undefined; }'.
+app/api/parties/route.ts(105,68): error TS2339: Property 'id' does not exist on type '{ name?: string | null | undefined; email?: string | null | undefined; image?: string | null | undefined; }'.
+lib/storage.ts(198,23): error TS2339: Property 'hostName' does not exist on type 'Party'.
+../../packages/auth/src/auth-config.ts(101,22): error TS2339: Property 'id' does not exist on type '{ name?: string | null | undefined; email?: string | null | undefined; image?: string | null | undefined; }'.
+
+────────────────────────────────────────────────────────────────
+
+┌─────────────────────────────────────────────────────────────┐
+│                  5. RUNNING PROCESSES                        │
+└─────────────────────────────────────────────────────────────┘
+🏃 Port 3000 Status:
+────────────────────────────────────────────────────────────────
+
+🏃 Node/NPM Processes:
+────────────────────────────────────────────────────────────────
+mz               68616   0.1  0.1 410820336   8912   ??  Ss    2:45PM   0:19.88 /Users/mz/tootfm-v3/node_modules/turbo-darwin-arm64/bin/turbo --skip-infer daemon
+mz               78911   0.0  0.1 1621803952   6896   ??  S     6:45PM   0:01.00 /Applications/Cursor.app/Contents/Frameworks/Cursor Helper (Plugin).app/Contents/MacOS/Cursor Helper (Plugin) /Applications/Cursor.app/Contents/Resources/app/extensions/node_modules/typescript/lib/typingsInstaller.js --globalTypingsCacheLocation /Users/mz/Library/Caches/typescript/5.8 --enableTelemetry --typesMapLocation /Applications/Cursor.app/Contents/Resources/app/extensions/node_modules/typescript/lib/typesMap.json --validateDefaultNpmLocation
+mz               71531   0.0  0.1 1621816432   8576   ??  S     2:57PM   0:03.68 /Applications/Cursor.app/Contents/Frameworks/Cursor Helper (Plugin).app/Contents/MacOS/Cursor Helper (Plugin) /Applications/Cursor.app/Contents/Resources/app/extensions/json-language-features/server/dist/node/jsonServerMain --node-ipc --clientProcessId=71460
+
+────────────────────────────────────────────────────────────────
+
+┌─────────────────────────────────────────────────────────────┐
+│                  6. LOG FILES                                │
+└─────────────────────────────────────────────────────────────┘
+📝 Log Files Found:
+────────────────────────────────────────────────────────────────
+No log files in root
+No log files in apps/web
+
+
+────────────────────────────────────────────────────────────────
+
+┌─────────────────────────────────────────────────────────────┐
+│                  7. MUSIC API SERVICES                       │
+└─────────────────────────────────────────────────────────────┘
+🎵 Spotify Service Implementation:
+────────────────────────────────────────────────────────────────
+import { MusicService, Track, Artist, AuthTokens } from './types';
+import SpotifyWebApi from 'spotify-web-api-node';
+
+export class SpotifyService implements MusicService {
+  name = 'spotify';
+  private spotifyApi: SpotifyWebApi;
+
+  constructor() {
+    this.spotifyApi = new SpotifyWebApi({
+      clientId: process.env.SPOTIFY_CLIENT_ID,
+      clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+      redirectUri: process.env.SPOTIFY_REDIRECT_URI
+    });
+  }
+
+  async connect(userId: string, tokens: AuthTokens): Promise<void> {
+    const { prisma } = await import('@tootfm/database');
+    
+    await prisma.musicProfile.upsert({
+      where: {
+        userId_service: {
+          userId,
+          service: 'spotify'
+        }
+      },
+      update: {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        expiresAt: tokens.expiresAt,
+        lastSyncedAt: new Date()
+      },
+      create: {
+        userId,
+        service: 'spotify',
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        expiresAt: tokens.expiresAt
+      }
+    });
+  }
+
+  async disconnect(userId: string): Promise<void> {
+    const { prisma } = await import('@tootfm/database');
+    
+    await prisma.musicProfile.delete({
+      where: {
+        userId_service: {
+          userId,
+          service: 'spotify'
+        }
+      }
+    });
+  }
+
+  async getTopTracks(userId: string, limit = 50): Promise<Track[]> {
+    const tokens = await this.getValidTokens(userId);
+    this.spotifyApi.setAccessToken(tokens.accessToken);
+    
+    const response = await this.spotifyApi.getMyTopTracks({ 
+      limit, 
+      time_range: 'medium_term' 
+    });
+    
+    return response.body.items.map(item => ({
+      id: `spotify_${item.id}`,
+      spotifyId: item.id,
+      isrc: item.external_ids?.isrc,
+      title: item.name,
+      artist: item.artists[0]?.name || 'Unknown',
+      album: item.album?.name,
+      duration: item.duration_ms,
+      imageUrl: item.album?.images[0]?.url,
+      previewUrl: item.preview_url
+    }));
+  }
+
+  async getTopArtists(userId: string, limit = 50): Promise<Artist[]> {
+    const tokens = await this.getValidTokens(userId);
+    this.spotifyApi.setAccessToken(tokens.accessToken);
+    
+    const response = await this.spotifyApi.getMyTopArtists({ 
+      limit, 
+      time_range: 'medium_term' 
+    });
+    
+    return response.body.items.map(item => ({
+      id: `spotify_${item.id}`,
+      name: item.name,
+      imageUrl: item.images[0]?.url,
+      genres: item.genres
+    }));
+  }
+
+  async searchTracks(query: string, limit = 20): Promise<Track[]> {
+    // Use client credentials for search
+    await this.spotifyApi.clientCredentialsGrant();
+    
+    const response = await this.spotifyApi.searchTracks(query, { limit });
+    
+    return response.body.tracks?.items.map(item => ({
+
+🎵 Music API Index:
+────────────────────────────────────────────────────────────────
+export * from './types';
+export { SpotifyService } from './spotify.service';
+export { MusicServiceFactory } from './factory';
+
+────────────────────────────────────────────────────────────────
+
+┌─────────────────────────────────────────────────────────────┐
+│                  8. COMPONENT ANALYSIS                       │
+└─────────────────────────────────────────────────────────────┘
+🧩 Party Components:
+────────────────────────────────────────────────────────────────
+File: apps/web/components/party/CreatePartyForm.tsx
+export function CreatePartyForm() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+  const handleSubmit = async (e: React.FormEvent) => {
+      const res = await fetch('/api/parties', {
+      const party = await res.json();
+          <Button type="submit" className="w-full" disabled={loading}>
+
+File: apps/web/components/party/JoinPartyForm.tsx
+export function JoinPartyForm() {
+  const router = useRouter();
+  const [code, setCode] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const handleSubmit = async (e: React.FormEvent) => {
+      const res = await fetch('/api/parties/join', {
+      const data = await res.json();
+          <Button type="submit" className="w-full" disabled={loading || code.length !== 6}>
+
+File: apps/web/components/party/PartyCard.tsx
+interface PartyCardProps {
+export function PartyCard({ party, isHost = false }: PartyCardProps) {
+  const statusColor = {
+
+────────────────────────────────────────────────────────────────
+
+┌─────────────────────────────────────────────────────────────┐
+│                  9. TYPE DEFINITIONS                         │
+└─────────────────────────────────────────────────────────────┘
+�� Types Index:
+────────────────────────────────────────────────────────────────
+// apps/web/types/index.ts
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  image: string | null;
+  createdAt: string;
+  updatedAt: string;
+  musicProfiles?: MusicProfile[];
+}
+
+export interface MusicProfile {
+  id: string;
+  service: "spotify" | "apple" | "lastfm";
+  userId: string;
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: string;
+  spotifyId?: string;
+  email?: string;
+  displayName?: string;
+  topTracks: SpotifyTrack[];
+  topArtists: SpotifyArtist[];
+  lastSyncedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SpotifyTrack {
+  id: string;
+  name: string;
+  artist: string;
+  artists: string[];
+  album: string;
+  duration: number;
+  isrc?: string;
+  spotifyId: string;
+  imageUrl?: string;
+  previewUrl?: string;
+  popularity: number;
+  uri: string;
+}
+
+export interface SpotifyArtist {
+  id: string;
+  name: string;
+  genres: string[];
+  popularity: number;
+  imageUrl?: string;
+}
+
+export interface Party {
+  id: string;
+  code: string;
+  name: string;
+  description?: string;
+  hostId: string;
+  status: "WAITING" | "ACTIVE" | "PAUSED" | "ENDED";
+  settings: {
+    maxTracks?: number;
+    autoPlay?: boolean;
+    votingEnabled?: boolean;
+    skipThreshold?: number;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Track {
+  id: string;
+  partyId: string;
+  position: number;
+  title: string;
+  artist: string;
+  album?: string;
+  duration?: number;
+  isrc?: string;
+  spotifyId?: string;
+  imageUrl?: string;
+  previewUrl?: string;
+  addedById?: string;
+  playedAt?: string;
+  createdAt: string;
+}
+
+export interface Membership {
+  id: string;
+  userId: string;
+  partyId: string;
+  role: "host" | "dj" | "guest";
+  joinedAt: string;
+  leftAt?: string;
+}
+
+export interface Vote {
+  id: string;
+  userId: string;
+  trackId: string;
+  type: "up" | "down" | "skip";
+  createdAt: string;
+
+────────────────────────────────────────────────────────────────
+
+┌─────────────────────────────────────────────────────────────┐
+│                  10. PUSHER/REALTIME CHECK                   │
+└─────────────────────────────────────────────────────────────┘
+🔄 Files mentioning Pusher:
+────────────────────────────────────────────────────────────────
+
+🔄 Files mentioning WebSocket:
+────────────────────────────────────────────────────────────────
+apps/web/lib/websocket.ts:export class PartyWebSocket {
+apps/web/lib/websocket.ts:  private ws: WebSocket | null = null;
+apps/web/lib/websocket.ts:    if (this.ws?.readyState === WebSocket.OPEN) {
+apps/web/lib/websocket.ts:export const partySocket = new PartyWebSocket();
+
+────────────────────────────────────────────────────────────────
+
+┌─────────────────────────────────────────────────────────────┐
+│                  11. AUTH CONFIGURATION                      │
+└─────────────────────────────────────────────────────────────┘
+🔐 NextAuth Configuration:
+────────────────────────────────────────────────────────────────
+export const authOptions: NextAuthOptions = {
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+    SpotifyProvider({
+      clientId: process.env.SPOTIFY_CLIENT_ID!,
+      clientSecret: process.env.SPOTIFY_CLIENT_SECRET!,
+      authorization: {
+        url: "https://accounts.spotify.com/authorize",
+        params: {
+          scope: SPOTIFY_SCOPES,
+          show_dialog: true,
+        },
+      },
+    }),
+  ],
+  
+  callbacks: {
+    async jwt({ token, account, user, profile }) {
+      // Сохраняем Spotify данные
+--
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };
+
+────────────────────────────────────────────────────────────────
+
+┌─────────────────────────────────────────────────────────────┐
+│                  12. DATA FILE ANALYSIS                      │
+└─────────────────────────────────────────────────────────────┘
+📊 Current data.json content:
+────────────────────────────────────────────────────────────────
+File: data.json
+Size: 55B
+Content:
+{
+    "users": [],
+    "parties": [],
+    "tracks": [],
+    "memberships": []
+}
+
+File: apps/web/data.json
+Size: 1.2K
+Content:
+{
+    "users": [
+        {
+            "id": "user_1756401795176",
+            "email": "mihail.zarin@gmail.com",
+            "name": "Mike Zarin",
+            "image": "https://lh3.googleusercontent.com/a/ACg8ocLkCzRCdEklrDaiajf4D8X2_BdJTfz557jOC9bIRqlkbCRl66479A=s96-c",
+            "createdAt": "2025-08-28T17:23:15.176Z",
+            "updatedAt": "2025-08-28T17:23:15.176Z"
+        }
+    ],
+    "parties": [
+        {
+            "code": "OFEJHK",
+            "name": "444",
+            "description": "",
+            "hostId": "107793802893242446523",
+            "hostName": "Mike Zarin",
+            "hostImage": "https://lh3.googleusercontent.com/a/ACg8ocLkCzRCdEklrDaiajf4D8X2_BdJTfz557jOC9bIRqlkbCRl66479A=s96-c",
+            "settings": {
+                "maxTracks": 50,
+                "autoPlay": true,
+                "votingEnabled": true,
+                "skipThreshold": 0.5
+            },
+            "status": "WAITING",
+            "id": "party_1756399902421_5c9gazqvv",
+            "createdAt": "2025-08-28T16:51:42.421Z",
+            "updatedAt": "2025-08-28T16:51:42.421Z"
+        }
+    ],
+    "tracks": [],
+    "memberships": [
+        {
+            "id": "membership_1756399902421",
+            "userId": "107793802893242446523",
+            "partyId": "party_1756399902421_5c9gazqvv",
+            "role": "host",
+            "joinedAt": "2025-08-28T16:51:42.421Z"
+        }
+    ],
+    "votes": []
+}
+
+────────────────────────────────────────────────────────────────
+
+┌─────────────────────────────────────────────────────────────┐
+│                  13. PACKAGE DEPENDENCIES                    │
+└─────────────────────────────────────────────────────────────┘
+📦 Installed packages check:
+────────────────────────────────────────────────────────────────
+Pusher installed: 2
+Next.js version: 14.2.5
+React version: ^18.2.0
+
+📦 Missing UI components check:
+────────────────────────────────────────────────────────────────
+❌ button.tsx missing
+❌ input.tsx missing
+❌ card.tsx missing
+❌ dialog.tsx missing
+❌ form.tsx missing
+❌ label.tsx missing
+❌ select.tsx missing
+❌ toast.tsx missing
+
+────────────────────────────────────────────────────────────────
+
+════════════════════════════════════════════════════════════════
+                 END OF DETAILED AUDIT REPORT                   
+════════════════════════════════════════════════════════════════
+Report saved to: tootfm-detailed-20250828-234324.txt
+Generated at: Thu Aug 28 23:43:26 EEST 2025

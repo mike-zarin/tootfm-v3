@@ -1,0 +1,213 @@
+════════════════════════════════════════════════════════════════
+           TOOTFM COMPLETE PRE-UPDATE AUDIT
+════════════════════════════════════════════════════════════════
+Timestamp: Sun Aug 31 18:25:53 EEST 2025
+
+[0;34m══════════════════════════════════════════════════════[0m
+[0;34m1. PROJECT STRUCTURE CHECK[0m
+[0;34m══════════════════════════════════════════════════════[0m
+[0;32m✅ Found:[0m apps/web/app/layout.tsx
+[0;32m✅ Found:[0m apps/web/app/providers.tsx
+[0;32m✅ Found:[0m apps/web/lib/storage.ts
+[0;32m✅ Found:[0m apps/web/lib/auth-options.ts
+[0;32m✅ Found:[0m apps/web/types/index.ts
+[0;32m✅ Found:[0m data.json
+[0;32m✅ Found:[0m .env.local
+
+[0;34m══════════════════════════════════════════════════════[0m
+[0;34m2. LAYOUT.TSX ANALYSIS[0m
+[0;34m══════════════════════════════════════════════════════[0m
+Current layout.tsx structure:
+---
+import { Providers } from "./providers"
+export default function RootLayout({
+        <Providers>
+        </Providers>
+---
+[1;33m⚠️  Not found 'SessionProvider' in[0m apps/web/app/layout.tsx
+[0;32m✅ Found 'Providers' in[0m apps/web/app/layout.tsx
+[1;33m⚠️  Not found 'use client' in[0m apps/web/app/layout.tsx
+
+[0;34m══════════════════════════════════════════════════════[0m
+[0;34m3. TYPESCRIPT TYPES CHECK[0m
+[0;34m══════════════════════════════════════════════════════[0m
+Existing types:
+  - User
+  - MusicProfile
+  - SpotifyArtist
+  - Party
+  - Track
+  - Membership
+  - Vote
+  - CreatePartyRequest
+  - JoinPartyRequest
+  - JoinPartyResponse
+  - PartyWithCounts
+  - AddTrackRequest
+  - VoteRequest
+  - SearchTracksResponse
+  - SpotifyProfile
+  - SpotifyTrack
+  - SpotifyPlayerState
+[0;32m✅ Found 'SpotifyProfile' in[0m apps/web/types/index.ts
+[1;33m⚠️  Not found 'StorageData' in[0m apps/web/types/index.ts
+[0;32m✅ Found 'Vote' in[0m apps/web/types/index.ts
+
+[0;34m══════════════════════════════════════════════════════[0m
+[0;34m4. STORAGE.TS ANALYSIS[0m
+[0;34m══════════════════════════════════════════════════════[0m
+Storage class methods:
+  - read():
+  - write(data:
+  - getUsers():
+  - getUser(id:
+  - getUserByEmail(email:
+  - createUser(user:
+  - updateUser(id:
+  - getParties():
+  - getParty(id:
+  - getPartyByCode(code:
+  - createParty(party:
+  - updateParty(id:
+  - getMemberships():
+  - createMembership(membership:
+  - getMembership(userId:
+  - getTracks(partyId:
+  - createTrack(track:
+  - updateTrack(id:
+  - deleteTrack(id:
+  - createVote(vote:
+[0;32m✅ Found 'saveMusicProfile' in[0m apps/web/lib/storage.ts
+[0;32m✅ Found 'getMusicProfile' in[0m apps/web/lib/storage.ts
+[1;33m⚠️  Not found 'private async readData' in[0m apps/web/lib/storage.ts
+[1;33m⚠️  Not found 'private async writeData' in[0m apps/web/lib/storage.ts
+
+Exported functions:
+      31
+Total exports:       31
+
+[0;34m══════════════════════════════════════════════════════[0m
+[0;34m5. DATA.JSON STRUCTURE[0m
+[0;34m══════════════════════════════════════════════════════[0m
+Current data.json structure:
+Fields in data.json:
+  - users: 0 items
+  - parties: 0 items
+  - tracks: 0 items
+  - memberships: 0 items
+  ⚠️  spotifyProfiles field is MISSING
+  ⚠️  votes field is MISSING
+
+[0;34m══════════════════════════════════════════════════════[0m
+[0;34m6. SPOTIFY INTEGRATION CHECK[0m
+[0;34m══════════════════════════════════════════════════════[0m
+[0;32m✅ Directory exists:[0m apps/web/app/api/auth/spotify
+[0;31m❌ Missing:[0m apps/web/app/api/auth/spotify/login/route.ts
+[0;32m✅ Found:[0m apps/web/app/api/auth/spotify/callback/route.ts
+[0;32m✅ Found:[0m apps/web/app/api/auth/spotify/refresh/route.ts
+[0;32m✅ Found:[0m apps/web/lib/spotify.ts
+
+[0;34m══════════════════════════════════════════════════════[0m
+[0;34m7. ENVIRONMENT VARIABLES[0m
+[0;34m══════════════════════════════════════════════════════[0m
+Checking environment variables (without showing values):
+[0;32m✅ NEXTAUTH_URL is set[0m
+[0;32m✅ NEXTAUTH_SECRET is set[0m
+[0;32m✅ GOOGLE_CLIENT_ID is set[0m
+[0;32m✅ GOOGLE_CLIENT_SECRET is set[0m
+[0;32m✅ SPOTIFY_CLIENT_ID is set[0m
+[0;32m✅ SPOTIFY_CLIENT_SECRET is set[0m
+[0;32m✅ SPOTIFY_REDIRECT_URI is set[0m
+
+[0;34m══════════════════════════════════════════════════════[0m
+[0;34m8. DEPENDENCIES CHECK[0m
+[0;34m══════════════════════════════════════════════════════[0m
+Key dependencies:
+  ❌ next: NOT INSTALLED
+  ❌ next-auth: NOT INSTALLED
+  ❌ react: NOT INSTALLED
+  ✅ typescript: ^5.3.0
+  ❌ @prisma/client: NOT INSTALLED
+  ❌ prisma: NOT INSTALLED
+
+[0;34m══════════════════════════════════════════════════════[0m
+[0;34m9. NEXTAUTH CONFIGURATION[0m
+[0;34m══════════════════════════════════════════════════════[0m
+NextAuth config found in: apps/web/lib/auth-options.ts
+Providers configured:
+[0;32m✅ Found 'GoogleProvider' in[0m apps/web/lib/auth-options.ts
+[0;32m✅ Found 'SpotifyProvider' in[0m apps/web/lib/auth-options.ts
+
+[0;34m══════════════════════════════════════════════════════[0m
+[0;34m10. TYPESCRIPT COMPILATION TEST[0m
+[0;34m══════════════════════════════════════════════════════[0m
+Running TypeScript check...
+apps/web/app/api/auth/[...nextauth]/route.ts(2,29): error TS2307: Cannot find module '@/lib/auth-options' or its corresponding type declarations.
+apps/web/app/api/auth/spotify/callback/route.ts(3,29): error TS2307: Cannot find module '@/lib/auth-options' or its corresponding type declarations.
+apps/web/app/api/auth/spotify/callback/route.ts(4,25): error TS2307: Cannot find module '@/lib/storage' or its corresponding type declarations.
+apps/web/app/api/auth/spotify/callback/route.ts(5,51): error TS2307: Cannot find module '@/lib/spotify' or its corresponding type declarations.
+apps/web/app/api/auth/spotify/callback/route.ts(6,37): error TS2307: Cannot find module '@/types' or its corresponding type declarations.
+apps/web/app/api/auth/spotify/connect/route.ts(3,29): error TS2307: Cannot find module '@/lib/auth-options' or its corresponding type declarations.
+apps/web/app/api/auth/spotify/connect/route.ts(4,35): error TS2307: Cannot find module '@/lib/spotify' or its corresponding type declarations.
+apps/web/app/api/auth/spotify/refresh/route.ts(3,29): error TS2307: Cannot find module '@/lib/auth-options' or its corresponding type declarations.
+apps/web/app/api/auth/spotify/refresh/route.ts(4,25): error TS2307: Cannot find module '@/lib/storage' or its corresponding type declarations.
+apps/web/app/api/auth/spotify/refresh/route.ts(5,37): error TS2307: Cannot find module '@/lib/spotify' or its corresponding type declarations.
+apps/web/app/api/music/profiles/route.ts(5,29): error TS2307: Cannot find module '@/lib/auth-options' or its corresponding type declarations.
+apps/web/app/api/music/profiles/route.ts(6,25): error TS2307: Cannot find module '@/lib/storage' or its corresponding type declarations.
+apps/web/app/api/music/search/route.ts(5,29): error TS2307: Cannot find module '@/lib/auth-options' or its corresponding type declarations.
+apps/web/app/api/music/search/route.ts(6,52): error TS2307: Cannot find module '@/types' or its corresponding type declarations.
+apps/web/app/api/music/sync/route.ts(4,29): error TS2307: Cannot find module '@/lib/auth-options' or its corresponding type declarations.
+apps/web/app/api/music/sync/route.ts(5,25): error TS2307: Cannot find module '@/lib/storage' or its corresponding type declarations.
+apps/web/app/api/parties/[id]/route.ts(6,28): error TS2307: Cannot find module '@/lib/auth-config' or its corresponding type declarations.
+apps/web/app/api/parties/[id]/route.ts(7,25): error TS2307: Cannot find module '@/lib/storage' or its corresponding type declarations.
+apps/web/app/api/parties/[id]/tracks/[trackId]/vote/route.ts(5,29): error TS2307: Cannot find module '@/lib/auth-options' or its corresponding type declarations.
+apps/web/app/api/parties/[id]/tracks/[trackId]/vote/route.ts(6,28): error TS2307: Cannot find module '@/lib/storage' or its corresponding type declarations.
+
+[0;34m══════════════════════════════════════════════════════[0m
+[0;34m11. KNOWN ISSUES CHECK[0m
+[0;34m══════════════════════════════════════════════════════[0m
+Checking for duplicate parties issue:
+  Checking party/page.tsx for duplicate rendering...
+149:          {parties.map((party) => (
+
+Checking member count logic:
+  async getPartyMemberCount(partyId: string): Promise<number> {
+    const data = await this.read();
+    return data.memberships?.filter(m => m.partyId === partyId && !m.leftAt).length || 0;
+  }
+
+  async getPartyTrackCount(partyId: string): Promise<number> {
+--
+export const getPartyMemberCount = storage.getPartyMemberCount.bind(storage);
+export const getPartyTrackCount = storage.getPartyTrackCount.bind(storage);
+
+
+[0;34m══════════════════════════════════════════════════════[0m
+[0;34m12. CURRENT RUNNING PROCESSES[0m
+[0;34m══════════════════════════════════════════════════════[0m
+Node processes:
+mz               64629   0.4  0.1 497216048  12112 s003  S+    2:05PM   0:40.85 next-server (v14.2.5) 
+mz               47882   0.0  0.2 1621801904  13568   ??  S     4:34PM   0:01.04 /Applications/Cursor.app/Contents/Frameworks/Cursor Helper (Plugin).app/Contents/MacOS/Cursor Helper (Plugin) /Applications/Cursor.app/Contents/Resources/app/extensions/css-language-features/server/dist/node/cssServerMain --node-ipc --clientProcessId=88064
+mz               86853   0.0  0.1 410818096   6640   ??  Ss    2:35PM   0:08.32 /Users/mz/tootfm-v3/node_modules/turbo-darwin-arm64/bin/turbo --skip-infer daemon
+mz               64628   0.0  0.0 421609696   1584 s003  S+    2:05PM   0:00.24 node /Users/mz/tootfm-v3/node_modules/.bin/next dev
+mz               46200   0.0  0.0 421479136   1536 s001  T     1:40PM   0:00.21 node /Users/mz/tootfm-v3/node_modules/.bin/next dev
+
+[0;34m════════════════════════════════════════════════════════[0m
+[0;34m                    AUDIT SUMMARY[0m
+[0;34m════════════════════════════════════════════════════════[0m
+
+Total Checks: 31
+[0;32mPassed: 25[0m
+[1;33mWarnings: 5[0m
+[0;31mErrors: 1[0m
+
+Health Score: 80%
+
+[0;34m════════════════════════════════════════════════════════[0m
+[0;34m                  RECOMMENDATIONS[0m
+[0;34m════════════════════════════════════════════════════════[0m
+[0;31m⚠️  CRITICAL: Fix errors before proceeding![0m
+[1;33m3. Add spotifyProfiles field to data.json[0m
+
+Audit complete! Review results before making changes.
+Report saved to: audit_report_20250831_182555.txt

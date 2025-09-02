@@ -1,0 +1,19 @@
+{
+  "name": "@tootfm/music-api",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tootfm/database": "*",
+    "spotify-web-api-node": "^5.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/spotify-web-api-node": "^5.0.11",
+    "typescript": "^5.3.3"
+  }
+}

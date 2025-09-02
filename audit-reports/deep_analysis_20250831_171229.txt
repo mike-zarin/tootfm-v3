@@ -1,0 +1,630 @@
+[1m[0;36m═══════════════════════════════════════════════════════════════[0m
+[1m[0;36m           TOOTFM DEEP ARCHITECTURAL ANALYSIS v7.0[0m
+[1m[0;36m═══════════════════════════════════════════════════════════════[0m
+Timestamp: Sun Aug 31 17:12:29 EEST 2025
+Project Root: /Users/mz/tootfm-v3
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│            1. DEEP PROJECT STRUCTURE ANALYSIS              │[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+[0;36mComplete Project Tree:[0m
+
+[1;33mapps/[0m
+  📁 web [TS:       3 TSX:       0 JS:       4]
+    📄 package.json
+
+[1;33mpackages/[0m
+    📄 package.json
+    📄 package.json
+    📄 package.json
+    📄 package.json
+
+[1;33mscripts/[0m
+
+[1;33m.github/[0m
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│                2. CRITICAL FILES VALIDATION                │[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+[0;32m✅ Root Layout - Found[0m
+[0;31m❌   └─ SessionProvider MISSING in layout![0m
+[0;32m✅ Home Page - Found[0m
+[0;32m✅ Party List - Found[0m
+[0;32m✅ Party Detail - Found[0m
+[0;32m✅ Auth API - Found[0m
+[0;32m✅ Storage System - Found[0m
+[1;33m⚠️    └─ Storage only has  exports[0m
+[0;32m✅ Type Definitions - Found[0m
+[0;32m✅ Environment Config - Found[0m
+[0;32m✅   └─ NEXTAUTH_URL configured[0m
+[0;32m✅   └─ NEXTAUTH_SECRET configured[0m
+[0;32m✅   └─ SPOTIFY_CLIENT_ID configured[0m
+[0;32m✅ Data Storage - Found[0m
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│              3. DEPENDENCY & IMPORT ANALYSIS               │[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+[0;36mChecking for circular dependencies:[0m
+
+[0;36mAnalyzing export usage:[0m
+[1;33m⚠️  Unused export: export in api-utils.ts[0m
+[1;33m⚠️  Unused export: export in api-utils.ts[0m
+[1;33m⚠️  Unused export: generatePartyCode(): in api-utils.ts[0m
+[1;33m⚠️  Unused export: export in api-utils.ts[0m
+[1;33m⚠️  Unused export: handleApiError(error: in api-utils.ts[0m
+[1;33m⚠️  Unused export: export in api-utils.ts[0m
+[1;33m⚠️  Unused export: requireAuth(session: in api-utils.ts[0m
+[1;33m⚠️  Unused export: export in auth-options.ts[0m
+[1;33m⚠️  Unused export: authOptions: in auth-options.ts[0m
+[1;33m⚠️  Unused export: export in migrate-data.ts[0m
+[1;33m⚠️  Unused export: export in spotify.ts[0m
+[1;33m⚠️  Unused export: [ in spotify.ts[0m
+[1;33m⚠️  Unused export: export in spotify.ts[0m
+[1;33m⚠️  Unused export: export in spotify.ts[0m
+[1;33m⚠️  Unused export: getSpotifyAuthUrl(state: in spotify.ts[0m
+[1;33m⚠️  Unused export: 'default'): in spotify.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.createMembership.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.createParty.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.createTrack.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.createUser.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.createVote.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.deleteTrack.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.findPartyByCode.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.findPartyById.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.generateUniquePartyCode.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.getMembership.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.getMemberships.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.getMusicProfile.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.getParties.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.getParty.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.getPartyByCode.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.getPartyMemberCount.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.getPartyMembers.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.getPartyTrackCount.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.getTracks.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.getUser.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.getUserByEmail.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.getUserParties.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.getUsers.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.getVotes.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.joinParty.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.readData.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.saveMusicProfile.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: Storage(); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.updateParty.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.updateTrack.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in storage.ts[0m
+[1;33m⚠️  Unused export: storage.updateUser.bind(storage); in storage.ts[0m
+[1;33m⚠️  Unused export: export in utils.ts[0m
+[1;33m⚠️  Unused export: cn(...inputs: in utils.ts[0m
+[1;33m⚠️  Unused export: ClassValue[]) in utils.ts[0m
+[1;33m⚠️  Unused export: export in websocket.ts[0m
+[1;33m⚠️  Unused export: PartyWebSocket in websocket.ts[0m
+[1;33m⚠️  Unused export: export in websocket.ts[0m
+[1;33m⚠️  Unused export: partySocket in websocket.ts[0m
+[1;33m⚠️  Unused export: PartyWebSocket(); in websocket.ts[0m
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│               4. API ROUTES CONNECTIVITY TEST              │[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+[0;36mFrontend-API connectivity:[0m
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│              5. STORAGE & DATA INTEGRITY CHECK             │[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+[0;36mStorage methods analysis:[0m
+[0;32m✅ Storage method: createParty[0m
+[0;32m✅ Storage method: joinParty[0m
+[0;32m✅ Storage method: findPartyByCode[0m
+[0;32m✅ Storage method: getPartyMembers[0m
+[0;32m✅ Storage method: createUser[0m
+[0;32m✅ Storage method: updateUser[0m
+[0;32m✅ Storage method: createTrack[0m
+[0;32m✅ Storage method: updateTrack[0m
+
+[0;36mData file: apps/web/data.json[0m
+[0;32m✅ Valid JSON format[0m
+[0;32m✅   └─ users: 1 records[0m
+[0;32m✅   └─ parties: 16 records[0m
+[0;32m✅   └─ tracks: 0 records[0m
+[0;32m✅   └─ memberships: 21 records[0m
+
+[0;36mData file: data.json[0m
+[0;32m✅ Valid JSON format[0m
+[0;32m✅   └─ users: 0 records[0m
+[0;32m✅   └─ parties: 0 records[0m
+[0;32m✅   └─ tracks: 0 records[0m
+[0;32m✅   └─ memberships: 0 records[0m
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│              6. TYPESCRIPT COMPILATION CHECK               │[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+[0;31m❌ TypeScript compilation: 20 errors[0m
+  [0;31m└─ lib/storage.ts(320,52): error TS2304: Cannot find name 'SpotifyProfile'.[0m
+  [0;31m└─ lib/storage.ts(322,17): error TS2339: Property 'spotifyProfiles' does not exist on type 'StorageData'.[0m
+  [0;31m└─ lib/storage.ts(322,43): error TS2304: Cannot find name 'SpotifyProfile'.[0m
+  [0;31m└─ lib/storage.ts(325,37): error TS2304: Cannot find name 'SpotifyProfile'.[0m
+  [0;31m└─ lib/storage.ts(325,62): error TS2304: Cannot find name 'SpotifyProfile'.[0m
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│             7. MUSIC SERVICE INTEGRATION CHECK             │[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+[0;36mSpotify Integration:[0m
+[0;31m❌ Login endpoint - MISSING[0m
+[0;31m❌ OAuth callback - MISSING[0m
+[0;31m❌ Token refresh - MISSING[0m
+[0;32m✅ Spotify client[0m
+
+[0;36mSpotify Environment:[0m
+  Redirect URI: http://localhost:3000/api/auth/spotify/callback
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│               8. REAL-TIME SYSTEM ANALYSIS                 │[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+[0;36mPusher/WebSocket Setup:[0m
+[0;32m✅ Pusher dependency installed[0m
+[1;33m⚠️  Pusher installed but not used[0m
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│            9. COMPONENT RELATIONSHIP MAPPING               │[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+[0;36mComponent dependency tree:[0m
+
+[1;33mConnectSpotify.tsx:[0m
+
+[1;33mTrackQueue.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: Card
+  └─ imports: }
+  └─ imports: from
+  └─ imports: '@/components/ui/card';
+  └─ imports: import
+  └─ imports: {
+  └─ imports: Button
+  └─ imports: }
+  └─ imports: from
+  └─ imports: '@/components/ui/button';
+  └─ imports: import
+  └─ imports: {
+  └─ imports: Badge
+  └─ imports: }
+  └─ imports: from
+  └─ imports: '@/components/ui/badge';
+  └─ imports: import
+  └─ imports: {
+  └─ imports: useToast
+  └─ imports: }
+  └─ imports: from
+  └─ imports: '@/components/ui/use-toast';
+
+[1;33mTrackSearch.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: Input
+  └─ imports: }
+  └─ imports: from
+  └─ imports: '@/components/ui/input';
+  └─ imports: import
+  └─ imports: {
+  └─ imports: Button
+  └─ imports: }
+  └─ imports: from
+  └─ imports: '@/components/ui/button';
+  └─ imports: import
+  └─ imports: {
+  └─ imports: Card
+  └─ imports: }
+  └─ imports: from
+  └─ imports: '@/components/ui/card';
+  └─ imports: import
+  └─ imports: {
+  └─ imports: useToast
+  └─ imports: }
+  └─ imports: from
+  └─ imports: '@/components/ui/use-toast';
+
+[1;33mCopyCodeButton.tsx:[0m
+
+[1;33mCreatePartyForm.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: Button
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/components/ui/button";
+  └─ imports: import
+  └─ imports: {
+  └─ imports: Input
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/components/ui/input";
+  └─ imports: import
+  └─ imports: {
+  └─ imports: Card,
+  └─ imports: CardContent,
+  └─ imports: CardHeader,
+  └─ imports: CardTitle
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/components/ui/card";
+  └─ imports: import
+  └─ imports: {
+  └─ imports: Badge
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/components/ui/badge";
+
+[1;33mJoinPartyForm.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: Button
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/components/ui/button";
+  └─ imports: import
+  └─ imports: {
+  └─ imports: Input
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/components/ui/input";
+  └─ imports: import
+  └─ imports: {
+  └─ imports: Card,
+  └─ imports: CardContent,
+  └─ imports: CardHeader,
+  └─ imports: CardTitle
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/components/ui/card";
+  └─ imports: import
+  └─ imports: {
+  └─ imports: Badge
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/components/ui/badge";
+
+[1;33mPartyCard.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: Button
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/components/ui/button";
+  └─ imports: import
+  └─ imports: {
+  └─ imports: Input
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/components/ui/input";
+  └─ imports: import
+  └─ imports: {
+  └─ imports: Card,
+  └─ imports: CardContent,
+  └─ imports: CardHeader,
+  └─ imports: CardTitle
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/components/ui/card";
+  └─ imports: import
+  └─ imports: {
+  └─ imports: Badge
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/components/ui/badge";
+
+[1;33mSpotifyConnect.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: Button
+  └─ imports: }
+  └─ imports: from
+  └─ imports: '@/components/ui/button';
+  └─ imports: import
+  └─ imports: {
+  └─ imports: Card
+  └─ imports: }
+  └─ imports: from
+  └─ imports: '@/components/ui/card';
+  └─ imports: import
+  └─ imports: {
+  └─ imports: useToast
+  └─ imports: }
+  └─ imports: from
+  └─ imports: '@/components/ui/use-toast';
+
+[1;33mSpotifyPlayer.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: Button
+  └─ imports: }
+  └─ imports: from
+  └─ imports: '@/components/ui/button';
+  └─ imports: import
+  └─ imports: {
+  └─ imports: Card
+  └─ imports: }
+  └─ imports: from
+  └─ imports: '@/components/ui/card';
+  └─ imports: import
+  └─ imports: {
+  └─ imports: Slider
+  └─ imports: }
+  └─ imports: from
+  └─ imports: '@/components/ui/slider';
+  └─ imports: import
+  └─ imports: {
+  └─ imports: useToast
+  └─ imports: }
+  └─ imports: from
+  └─ imports: '@/components/ui/use-toast';
+
+[1;33mavatar.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: cn
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/lib/utils"
+
+[1;33mbadge.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: cn
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/lib/utils"
+
+[1;33mbutton.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: cn
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/lib/utils"
+
+[1;33mcard.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: cn
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/lib/utils"
+
+[1;33mdialog.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: cn
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/lib/utils"
+
+[1;33mdropdown-menu.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: cn
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/lib/utils"
+
+[1;33mform.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: cn
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/lib/utils"
+  └─ imports: import
+  └─ imports: {
+  └─ imports: Label
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/components/ui/label"
+
+[1;33minput.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: cn
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/lib/utils"
+
+[1;33mlabel.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: cn
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/lib/utils"
+
+[1;33mscroll-area.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: cn
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/lib/utils"
+
+[1;33mselect.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: cn
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/lib/utils"
+
+[1;33mseparator.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: cn
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/lib/utils"
+
+[1;33mskeleton.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: cn
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/lib/utils"
+
+[1;33mslider.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: cn
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/lib/utils"
+
+[1;33mswitch.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: cn
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/lib/utils"
+
+[1;33mtabs.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: cn
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/lib/utils"
+
+[1;33mtextarea.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: cn
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/lib/utils"
+
+[1;33mtoast.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: cn
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/lib/utils"
+
+[1;33mtoaster.tsx:[0m
+  └─ imports: import
+  └─ imports: {
+  └─ imports: useToast
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/hooks/use-toast"
+
+[1;33muse-toast.tsx:[0m
+  └─ imports: import
+  └─ imports: type
+  └─ imports: {
+  └─ imports: ToastActionElement,
+  └─ imports: ToastProps
+  └─ imports: }
+  └─ imports: from
+  └─ imports: "@/components/ui/toast"
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│                  10. SECURITY ANALYSIS                     │[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+[0;36mSecurity checks:[0m
+[0;31m❌ Potential hardcoded secrets found![0m
+[1;33m⚠️  health - Unprotected API[0m
+[0;32m✅ parties - Protected[0m
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│                 11. PERFORMANCE ANALYSIS                   │[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+[0;36mPerformance checks:[0m
+[0;32m✅ Next.js Image optimization used[0m
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│                  12. GENERATING FIX SCRIPT                 │[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+[1m[0;36m═══════════════════════════════════════════════════════════════[0m
+[1m[0;36m                      ANALYSIS SUMMARY[0m
+[1m[0;36m═══════════════════════════════════════════════════════════════[0m
+
+📊 Overall Statistics:
+  Total Checks: 129
+  ✅ Passed: 34
+  ⚠️  Warnings: 89
+  ❌ Errors: 6
+
+🏆 Health Score: 26%
+[0;31mCritical issues need immediate attention![0m
+
+[0;31m🚨 CRITICAL ISSUES TO FIX:[0m
+  •   └─ SessionProvider MISSING in layout!
+  • TypeScript compilation: 20 errors
+  • Login endpoint - MISSING
+  • OAuth callback - MISSING
+  • Token refresh - MISSING
+  • Potential hardcoded secrets found!
+
+[1m[0;32m📋 PRIORITY ACTION PLAN:[0m
+
+[1;33mPriority 1 - Critical (Fix NOW):[0m
+1. Add SessionProvider to app/layout.tsx
+
+[1;33mPriority 2 - Important (Today):[0m
+1. Complete Spotify OAuth flow
+2. Implement missing storage methods
+3. Add auth protection to API routes
+
+[1;33mPriority 3 - Enhancement (This Week):[0m
+1. Implement real-time updates
+2. Add comprehensive error handling
+3. Optimize component sizes
+
+[1m[0;36m📄 Generated Files:[0m
+  • Main Report: /Users/mz/tootfm-v3/audit-reports/deep_analysis_20250831_171229.txt
+  • Fix Script: /Users/mz/tootfm-v3/audit-reports/fix_commands_20250831_171229.sh
+
+To apply fixes: [0;32mbash /Users/mz/tootfm-v3/audit-reports/fix_commands_20250831_171229.sh[0m
+
+[1m[0;32m✅ Analysis Complete![0m
+════════════════════════════════════════════════════════════════

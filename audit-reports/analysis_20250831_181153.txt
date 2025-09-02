@@ -1,0 +1,69 @@
+[1m[0;36m═══════════════════════════════════════════════════════════════[0m
+[1m[0;36m                 TOOTFM ANALYSIS v8.1 Fixed[0m
+[1m[0;36m═══════════════════════════════════════════════════════════════[0m
+Timestamp: Sun Aug 31 18:11:53 EEST 2025
+
+[1m[0;35m│ 1. PROJECT STRUCTURE │[0m
+
+  📁 apps: 1856 files
+  📁 packages: 56 files
+
+[1m[0;35m│ 2. CRITICAL FILES │[0m
+
+[0;32m✅ Root Layout exists[0m
+[0;31m❌   └─ SessionProvider MISSING![0m
+[0;32m✅ Party List exists[0m
+[0;32m✅ Storage exists[0m
+
+[1m[0;35m│ 3. TYPESCRIPT │[0m
+
+[0;31m❌ TypeScript: 0
+0 errors[0m
+
+[1m[0;35m│ 4. API ROUTES │[0m
+
+  ✓ /api/music/search
+  ✓ /api/music/profiles
+  ✓ /api/music/sync
+  ✓ /api/auth/spotify/refresh
+  ✓ /api/auth/spotify/callback
+  ✓ /api/auth/spotify/connect
+  ✓ /api/auth/[...nextauth]
+  ✓ /api/health
+  ✓ /api/spotify/player
+  ✓ /api/parties/join
+  ✓ /api/parties
+  ✓ /api/parties/[id]/tracks/[trackId]/vote
+  ✓ /api/parties/[id]/tracks
+  ✓ /api/parties/[id]
+
+[1m[0;35m│ 5. SPOTIFY INTEGRATION │[0m
+
+[0;32m✅ Spotify callback[0m
+[0;32m✅ Spotify connect[0m
+
+[1m[0;35m│ 6. DATA INTEGRITY │[0m
+
+[0;32m✅ data.json valid[0m
+[0;32m✅ No duplicate parties[0m
+
+[1m[0;36m═══════════════════════════════════════════════════════════════[0m
+[1m[0;36m                         SUMMARY[0m
+[1m[0;36m═══════════════════════════════════════════════════════════════[0m
+
+📊 Results:
+  ✅ Passed: 7
+  ⚠️  Warnings: 0
+  ❌ Errors: 2
+
+🏆 Health Score: 77%
+
+[0;31mCritical issues need attention![0m
+
+Top priorities:
+1. Fix SessionProvider in layout.tsx
+2. Fix TypeScript errors
+3. Complete Spotify integration
+
+Report saved to: /Users/mz/tootfm-v3/audit-reports/analysis_20250831_181153.txt
+

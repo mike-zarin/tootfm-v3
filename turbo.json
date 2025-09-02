@@ -1,0 +1,21 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["**/.env.*local"],
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+      "env": ["NODE_ENV", "NEXTAUTH_URL", "NEXTAUTH_SECRET", "DATABASE_URL"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "dotEnv": [".env.local", ".env"]
+    },
+    "lint": { "outputs": [] },
+    "type-check": { "outputs": [] },
+    "db:push": { "cache": false, "env": ["DATABASE_URL"] },
+    "db:migrate": { "cache": false, "env": ["DATABASE_URL"] },
+    "db:studio": { "cache": false, "persistent": true, "env": ["DATABASE_URL"] }
+  }
+}

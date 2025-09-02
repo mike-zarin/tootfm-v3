@@ -1,0 +1,204 @@
+// apps/web/types/index.ts
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  image: string | null;
+  createdAt: string;
+  updatedAt: string;
+  musicProfiles?: MusicProfile[];
+}
+
+export interface MusicProfile {
+  id: string;
+  service: "spotify" | "apple" | "lastfm";
+  userId: string;
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: string;
+  spotifyId?: string;
+  email?: string;
+  displayName?: string;
+  topTracks: SpotifyTrack[];
+  topArtists: SpotifyArtist[];
+  lastSyncedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SpotifyTrack {
+  id: string;
+  name: string;
+  artist: string;
+  artists: string[];
+  album: string;
+  duration: number;
+  isrc?: string;
+  spotifyId: string;
+  imageUrl?: string;
+  previewUrl?: string;
+  popularity: number;
+  uri: string;
+}
+
+export interface SpotifyArtist {
+  id: string;
+  name: string;
+  genres: string[];
+  popularity: number;
+  imageUrl?: string;
+}
+
+export interface Party {
+  id: string;
+  code: string;
+  name: string;
+  description?: string;
+  hostId: string;
+  hostName?: string;
+  hostImage?: string | null;
+  status: "WAITING" | "ACTIVE" | "PAUSED" | "ENDED";
+  settings: {
+    maxTracks?: number;
+    autoPlay?: boolean;
+    votingEnabled?: boolean;
+    skipThreshold?: number;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Track {
+  id: string;
+  partyId: string;
+  position: number;
+  title: string;
+  artist: string;
+  album?: string;
+  duration?: number;
+  isrc?: string;
+  spotifyId?: string;
+  imageUrl?: string;
+  previewUrl?: string;
+  addedById?: string;
+  addedByName?: string;
+  playedAt?: string;
+  createdAt: string;
+}
+
+export interface Membership {
+  id: string;
+  userId: string;
+  partyId: string;
+  role: "host" | "dj" | "guest";
+  joinedAt: string;
+  leftAt?: string;
+}
+
+export interface Vote {
+  id: string;
+  userId: string;
+  trackId: string;
+  type: "up" | "down" | "skip";
+  createdAt: string;
+}
+
+// API Request/Response types
+export interface CreatePartyRequest {
+  name: string;
+  description?: string;
+  settings?: {
+    maxTracks?: number;
+    autoPlay?: boolean;
+    votingEnabled?: boolean;
+    skipThreshold?: number;
+  };
+}
+
+export interface JoinPartyRequest {
+  code: string;
+}
+
+export interface JoinPartyResponse {
+  success: boolean;
+  id: string;
+  message: string;
+}
+
+export interface PartyWithCounts extends Party {
+  members: number;
+  tracks: number;
+}
+
+export interface AddTrackRequest {
+  partyId: string;
+  spotifyId: string;
+  title: string;
+  artist: string;
+  album?: string;
+  duration?: number;
+  imageUrl?: string;
+  previewUrl?: string;
+}
+
+export interface VoteRequest {
+  trackId: string;
+  type: "up" | "down" | "skip";
+}
+
+export interface SearchTracksRequest {
+  query: string;
+  limit?: number;
+}
+
+export interface SearchTracksResponse {
+  tracks: SpotifyTrack[];
+}
+
+// WebSocket event types
+export interface PartyUpdateEvent {
+  type: "party_update";
+  party: Party;
+}
+
+export interface TrackAddedEvent {
+  type: "track_added";
+  track: Track;
+  partyId: string;
+}
+
+export interface TrackVotedEvent {
+  type: "track_voted";
+  trackId: string;
+  votes: {
+    up: number;
+    down: number;
+    skip: number;
+  };
+}
+
+export interface MemberJoinedEvent {
+  type: "member_joined";
+  userId: string;
+  userName: string;
+  partyId: string;
+}
+
+export interface MemberLeftEvent {
+  type: "member_left";
+  userId: string;
+  partyId: string;
+}
+
+export interface NowPlayingEvent {
+  type: "now_playing";
+  track: Track;
+  partyId: string;
+}
+
+// Utility types
+export type PartyStatus = "WAITING" | "ACTIVE" | "PAUSED" | "ENDED";
+export type MemberRole = "host" | "dj" | "guest";
+export type VoteType = "up" | "down" | "skip";
+export type MusicService = "spotify" | "apple" | "lastfm";

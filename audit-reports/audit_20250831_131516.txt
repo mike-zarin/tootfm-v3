@@ -1,0 +1,511 @@
+
+[1m[0;34m═══════════════════════════════════════════════════════════════[0m
+[1m[0;36m  tootFM ULTIMATE PROJECT AUDIT v4.0.0[0m
+[1m[0;34m═══════════════════════════════════════════════════════════════[0m
+Timestamp: Sun Aug 31 13:15:16 EEST 2025
+Project Root: /Users/mz/tootfm-v3
+Web Root: /Users/mz/tootfm-v3/apps/web
+Report File: /Users/mz/tootfm-v3/audit-reports/audit_20250831_131516.txt
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│  1. PROJECT STRUCTURE ANALYSIS[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+📁 Monorepo Structure:
+[0;32m✅ apps/ - 1823 files, 177M[0m
+[0;32m✅ packages/ - 56 files, 308K[0m
+[0;32m✅ scripts/ - 0 files,   0B[0m
+[0;32m✅ .github/ - 0 files,   0B[0m
+[0;32m✅ .turbo/ - 21 files,  28K[0m
+
+📱 Apps Structure:
+[0;36mℹ️  App: web[0m
+  TypeScript: 582 files
+  JavaScript: 573 files
+  CSS: 2 files
+
+📦 Packages Structure:
+[0;32m✅ Package: auth v0.1.0[0m
+  └─ ✅ Built
+[0;32m✅ Package: database v0.1.0[0m
+  └─ ✅ Built
+[0;32m✅ Package: music-api v0.1.0[0m
+[1;33m⚠️    └─ ⚠️  Not built[0m
+[0;32m✅ Package: ui v0.1.0[0m
+[1;33m⚠️    └─ ⚠️  Not built[0m
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│  2. NEXT.JS APP STRUCTURE (apps/web)[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+🗂️ App Router Structure:
+Routes found:
+  /party/join/page.tsx
+  [1;33m/party/[id]/page.tsx[0m (dynamic)
+  /party/create/page.tsx
+  /auth/signin/page.tsx
+  /auth/error/page.tsx
+  /page.tsx
+
+API Routes:
+  /api/music/search: GET
+  /api/music/profiles: GET
+  /api/music/sync: POST
+  /api/auth/[...nextauth]: GET POST
+  /api/health: GET
+  /api/parties/join: POST
+  /api/parties: GET POST
+  /api/parties/[id]/tracks/[trackId]/vote: POST
+  /api/parties/[id]/tracks: GET POST
+  /api/parties/[id]: GET DELETE PATCH
+
+Layouts & Loading:
+  /layout
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│  3. COMPONENTS ANALYSIS[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+🧩 Component Categories:
+[0;36mℹ️  auth: 0 components[0m
+[0;36mℹ️  layout: 0 components[0m
+[0;36mℹ️  music: 3 components[0m
+    [0;32m[C][0m TrackQueue.tsx (215 lines)
+    [0;32m[C][0m TrackSearch.tsx (187 lines)
+    [0;32m[C][0m ConnectSpotify.tsx (93 lines)
+[0;36mℹ️  party: 4 components[0m
+    [0;32m[C][0m JoinPartyForm.tsx (84 lines)
+    [0;32m[C][0m CreatePartyForm.tsx (85 lines)
+    [0;32m[C][0m PartyCard.tsx (74 lines)
+    [0;32m[C][0m CopyCodeButton.tsx (33 lines)
+[0;36mℹ️  ui: 20 components[0m
+    [0;32m[C][0m use-toast.tsx (188 lines)
+    [0;32m[C][0m tabs.tsx (54 lines)
+    [0;32m[C][0m card.tsx (81 lines)
+    [0;32m[C][0m slider.tsx (29 lines)
+    [0;32m[C][0m toaster.tsx (36 lines)
+    [0;32m[C][0m scroll-area.tsx (49 lines)
+    [0;32m[C][0m label.tsx (27 lines)
+    [0;32m[C][0m switch.tsx (30 lines)
+    [0;32m[C][0m avatar.tsx (51 lines)
+    [0;32m[C][0m dialog.tsx (123 lines)
+    [0;32m[C][0m badge.tsx (38 lines)
+    [0;32m[C][0m separator.tsx (32 lines)
+    [0;32m[C][0m button.tsx (58 lines)
+    [0;32m[C][0m toast.tsx (130 lines)
+    [0;32m[C][0m dropdown-menu.tsx (201 lines)
+    [0;32m[C][0m select.tsx (161 lines)
+    [0;32m[C][0m textarea.tsx (25 lines)
+    [0;32m[C][0m input.tsx (24 lines)
+    [0;32m[C][0m skeleton.tsx (17 lines)
+    [0;32m[C][0m form.tsx (179 lines)
+
+🎨 UI Components Status:
+[0;32m✅ ui/button.tsx[0m
+[0;32m✅ ui/card.tsx[0m
+[0;32m✅ ui/input.tsx[0m
+[0;32m✅ ui/label.tsx[0m
+[0;32m✅ ui/badge.tsx[0m
+[0;32m✅ ui/toast.tsx[0m
+[0;32m✅ ui/tabs.tsx[0m
+[0;32m✅ ui/form.tsx[0m
+[0;32m✅ ui/select.tsx[0m
+[0;32m✅ ui/dialog.tsx[0m
+[0;32m✅ ui/dropdown-menu.tsx[0m
+[0;32m✅ ui/slider.tsx[0m
+[0;32m✅ ui/switch.tsx[0m
+[0;32m✅ ui/textarea.tsx[0m
+[0;32m✅ ui/scroll-area.tsx[0m
+[0;32m✅ ui/separator.tsx[0m
+[0;32m✅ ui/avatar.tsx[0m
+[1;33m⚠️  ui/checkbox.tsx - Missing[0m
+[1;33m⚠️  ui/radio-group.tsx - Missing[0m
+[1;33m⚠️  ui/toggle.tsx - Missing[0m
+[1;33m⚠️  ui/tooltip.tsx - Missing[0m
+[1;33m⚠️  ui/popover.tsx - Missing[0m
+[1;33m⚠️  ui/command.tsx - Missing[0m
+[1;33m⚠️  ui/sheet.tsx - Missing[0m
+[1;33m⚠️  ui/alert.tsx - Missing[0m
+[1;33m⚠️  ui/alert-dialog.tsx - Missing[0m
+[1;33m⚠️  ui/aspect-ratio.tsx - Missing[0m
+[0;32m✅ ui/skeleton.tsx[0m
+[1;33m⚠️  ui/table.tsx - Missing[0m
+[1;33m⚠️  ui/navigation-menu.tsx - Missing[0m
+[1;33m⚠️  ui/menubar.tsx - Missing[0m
+[1;33m⚠️  ui/context-menu.tsx - Missing[0m
+[0;36mℹ️  UI Components: 18/32 available[0m
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│  4. DEPENDENCIES AUDIT[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+📦 Dependencies Analysis:
+[0;32m✅ next: 14.2.5[0m
+[0;32m✅ react: ^18.2.0[0m
+[0;32m✅ react-dom: ^18.2.0[0m
+[0;32m✅ typescript: ^5.3.3[0m
+
+🔐 Auth Dependencies:
+[0;32m✅ next-auth: ^4.24.5[0m
+[1;33m⚠️  @next-auth/prisma-adapter: Not installed[0m
+[1;33m⚠️  bcryptjs: Not installed[0m
+
+🎵 Music API Dependencies:
+[0;32m✅ spotify-web-api-node: ^5.0.2[0m
+[1;33m⚠️  @spotify/web-api-ts-sdk: Not installed[0m
+
+🔄 Real-time Dependencies:
+[0;32m✅ pusher: ^5.2.0[0m
+[0;32m✅ pusher-js: ^8.4.0-rc2[0m
+[0;36mℹ️  socket.io: Not installed[0m
+[0;36mℹ️  socket.io-client: Not installed[0m
+
+🔒 Security Audit:
+[1;33m⚠️  Found 16 vulnerabilities - run 'npm audit fix'[0m
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│  5. STORAGE SYSTEM AUDIT[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+💾 Storage Implementation:
+[0;32m✅ lib/storage.ts exists[0m
+
+Core Storage Functions:
+[0;32m✅   ✓ storage[0m
+[0;32m✅   ✓ getUserParties[0m
+[0;32m✅   ✓ getPartyMemberCount[0m
+[0;32m✅   ✓ getPartyTrackCount[0m
+[0;32m✅   ✓ generateUniquePartyCode[0m
+[0;32m✅   ✓ createParty[0m
+[0;32m✅   ✓ joinParty[0m
+[0;32m✅   ✓ findPartyByCode[0m
+[0;32m✅   ✓ findPartyById[0m
+[0;32m✅   ✓ getPartyMembers[0m
+[0;32m✅   ✓ createUser[0m
+[0;32m✅   ✓ updateUser[0m
+[0;32m✅   ✓ createTrack[0m
+[0;32m✅   ✓ updateTrack[0m
+[0;32m✅   ✓ deleteTrack[0m
+[0;32m✅   ✓ getTracks[0m
+[0;32m✅   ✓ createMembership[0m
+[1;33m⚠️    ✗ deleteMembership - Not exported[0m
+[0;32m✅   ✓ getMemberships[0m
+
+Helper Functions:
+[0;32m✅   ✓ getUserParties exported[0m
+[0;32m✅   ✓ getPartyMemberCount exported[0m
+[0;32m✅   ✓ getPartyTrackCount exported[0m
+[0;32m✅   ✓ generateUniquePartyCode exported[0m
+[0;32m✅   ✓ findPartyByCode exported[0m
+[0;32m✅   ✓ joinParty exported[0m
+[0;32m✅   ✓ getPartyMembers exported[0m
+
+Storage Class Methods:
+  • read()
+  • write()
+  • getUsers()
+  • getUser()
+  • getUserByEmail()
+  • createUser()
+  • updateUser()
+  • getParties()
+  • getParty()
+  • getPartyByCode()
+  • createParty()
+  • updateParty()
+  • getMemberships()
+  • createMembership()
+  • getMembership()
+  • getTracks()
+  • createTrack()
+  • updateTrack()
+  • deleteTrack()
+  • createVote()
+  • getVotes()
+  • getMusicProfile()
+  • saveMusicProfile()
+  • getUserParties()
+  • getPartyMemberCount()
+  • getPartyTrackCount()
+  • findPartyById()
+  • findPartyByCode()
+  • getPartyMembers()
+  • joinParty()
+  • generateUniquePartyCode()
+  • readData()
+
+📊 Data File Analysis:
+[0;36mℹ️  Found: /Users/mz/tootfm-v3/apps/web/data.json[0m
+  Size: 11493 bytes
+[0;32m✅   Valid JSON format[0m
+  • users: exists
+  • parties: exists
+  • tracks: exists
+  • memberships: exists
+  • votes: exists
+[0;36mℹ️    Records: 1 users, 13 parties, 0 tracks[0m
+[0;32m✅   Party structure valid[0m
+[0;36mℹ️  Found: /Users/mz/tootfm-v3/data.json[0m
+  Size: 55 bytes
+[0;32m✅   Valid JSON format[0m
+  • users: exists
+  • parties: exists
+  • tracks: exists
+  • memberships: exists
+[1;33m⚠️    • votes: missing[0m
+[0;36mℹ️    Records: 0 users, 0 parties, 0 tracks[0m
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│  6. TYPE SYSTEM AUDIT[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+📘 TypeScript Configuration:
+[0;32m✅ tsconfig.json exists[0m
+[0;32m✅ Strict mode enabled[0m
+[0;32m✅ Path aliases configured[0m
+
+🔤 Type Definitions:
+[0;32m✅ types/index.ts exists[0m
+  Interfaces: 15
+  Types: 0
+0
+  Enums: 0
+0
+[0;32m✅   ✓ User[0m
+[0;32m✅   ✓ Party[0m
+[0;32m✅   ✓ Track[0m
+[0;32m✅   ✓ Membership[0m
+[0;32m✅   ✓ Vote[0m
+[0;32m✅   ✓ MusicProfile[0m
+
+⚠️  TypeScript Compilation:
+[0;32m✅ No TypeScript errors[0m
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│  7. API ROUTES AUDIT[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+🛣️ API Routes Analysis:
+[0;32m✅ Authentication: GET POST [0m
+[0;32m✅ Parties CRUD: GET POST [0m
+[0;32m✅ Party by ID: GET DELETE PATCH [0m
+[0;32m✅ Join Party: POST [0m
+[0;32m✅ Music Search: GET [0m
+[0;32m✅ Music Sync: POST [0m
+[0;32m✅ Music Profiles: GET [0m
+[0;32m✅ Tracks Management: GET POST [0m
+[0;32m✅ Voting System: POST [0m
+[1;33m⚠️  Pusher Auth: Not implemented[0m
+[0;32m✅ Health Check: GET [0m
+
+🔐 API Authentication:
+[0;32m✅   search: Protected[0m
+[0;32m✅   profiles: Protected[0m
+[0;32m✅   sync: Protected[0m
+[1;33m⚠️    [...nextauth]: Unprotected[0m
+[1;33m⚠️    health: Unprotected[0m
+[0;32m✅   join: Protected[0m
+[0;32m✅   parties: Protected[0m
+[0;32m✅   vote: Protected[0m
+[0;32m✅   tracks: Protected[0m
+[0;32m✅   [id]: Protected[0m
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│  8. ENVIRONMENT VARIABLES[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+🔑 Environment Configuration:
+[0;36mℹ️  Found: .env.local[0m
+  Lines: 36
+
+🔧 Required Variables:
+[0;32m✅ NEXTAUTH_URL: Configured[0m
+[0;32m✅ NEXTAUTH_SECRET: Configured[0m
+[0;32m✅ GOOGLE_CLIENT_ID: Configured[0m
+[0;32m✅ GOOGLE_CLIENT_SECRET: Configured[0m
+
+🎵 Music API Variables:
+[0;32m✅ SPOTIFY_CLIENT_ID: Configured[0m
+[0;32m✅ SPOTIFY_CLIENT_SECRET: Configured[0m
+[0;32m✅ SPOTIFY_REDIRECT_URI: Configured[0m
+[0;36mℹ️  APPLE_TEAM_ID: Not configured[0m
+[0;36mℹ️  APPLE_KEY_ID: Not configured[0m
+[0;36mℹ️  LASTFM_API_KEY: Not configured[0m
+
+🔄 Real-time Variables:
+[0;32m✅ PUSHER_APP_ID: Configured[0m
+[0;32m✅ PUSHER_KEY: Configured[0m
+[0;32m✅ PUSHER_SECRET: Configured[0m
+[0;32m✅ PUSHER_CLUSTER: Configured[0m
+[0;32m✅ NEXT_PUBLIC_PUSHER_KEY: Configured[0m
+[0;32m✅ NEXT_PUBLIC_PUSHER_CLUSTER: Configured[0m
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│  9. CODE QUALITY ANALYSIS[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+🔍 Linting Analysis:
+[0;32m✅ ESLint configured[0m
+  Errors: 0
+0
+  Warnings: 0
+0
+[0;32m✅ Prettier configured[0m
+
+📊 Code Metrics:
+  .ts files: 24 (2049 lines)
+  .tsx files: 35 (2739 lines)
+  .js files: 4 (133 lines)
+  .jsx files: 1 ( lines)
+[0;36mℹ️  Total: 64 files, 4921 lines of code[0m
+
+⚠️  Common Issues:
+[1;33m⚠️  Found 21 console statements[0m
+[0;36mℹ️  Found 3 TODO/FIXME comments[0m
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│  10. FEATURE IMPLEMENTATION STATUS[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+✨ Core Features:
+[0;36mℹ️  Checking core features...[0m
+[0;32m✅ Google OAuth: Implemented[0m
+[0;32m✅ Party Creation: Implemented[0m
+[0;32m✅ Party Joining: Implemented[0m
+[0;32m✅ Party Page: Implemented[0m
+[0;32m✅ Music Search: Implemented[0m
+[0;32m✅ Track Queue: Implemented[0m
+[0;32m✅ Voting System: Implemented[0m
+[0;32m✅ Real-time Updates: Implemented[0m
+[0;36mℹ️  Features Summary: 8 implemented, 0 missing[0m
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│  10.5 TOOTFM SPECIFIC FEATURES[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+🎵 Music Portrait System:
+[1;33m⚠️  Music Portrait not implemented[0m
+
+🗳️ Voting Algorithm:
+[0;31m❌ Voting algorithm missing[0m
+
+🔄 Party State Management:
+[0;32m✅ Party state: WAITING defined[0m
+[0;32m✅ Party state: ACTIVE defined[0m
+[0;32m✅ Party state: PAUSED defined[0m
+[0;32m✅ Party state: ENDED defined[0m
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│  11. CLIENT COMPONENTS AUDIT[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+🖥️ 'use client' Directive Analysis:
+[0;36mℹ️  Client directive issues: 0 missing, 0 duplicate, 0 misplaced[0m
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│  12. BUILD & RUNTIME STATUS[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+🏗️ Build Status:
+[0;32m✅ .next directory exists[0m
+  Build size: 167M
+
+🚀 Development Server:
+[0;36mℹ️  Dev server not running[0m
+
+🧪 Server Start Test:
+[0;36mℹ️  Testing server startup...[0m
+[1;33m⚠️  Could not verify server startup[0m
+
+🔌 Port Usage:
+[0;36mℹ️  Port 5432: postgres[0m
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│  13. GIT & VERSION CONTROL[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+[1;33m⚠️  Not a git repository[0m
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│  14. TESTING INFRASTRUCTURE[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+🧪 Testing Setup:
+[0;32m✅ jest: jest[0m
+[0;32m✅ @testing-library/react: ^16.3.0[0m
+[0;36mℹ️  cypress: Not installed[0m
+[0;36mℹ️  playwright: Not installed[0m
+[0;36mℹ️  vitest: Not installed[0m
+
+📋 Test Files:
+  Unit tests: 0 files
+  E2E tests: 0 files
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│  15. PERFORMANCE ANALYSIS[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+⚡ Performance Optimizations:
+[0;36mℹ️  No dynamic imports found[0m
+[0;36mℹ️  No lazy loading found[0m
+[0;32m✅ Next.js Image optimization used[0m
+[0;36mℹ️  Bundle analyzer not configured[0m
+
+💾 Caching Strategy:
+[1;33m⚠️  No caching strategy[0m
+
+[1m[0;35m┌─────────────────────────────────────────────────────────────┐[0m
+[1m[0;35m│  16. MUSIC SERVICE INTEGRATIONS[0m
+[1m[0;35m└─────────────────────────────────────────────────────────────┘[0m
+
+🎵 Spotify Integration:
+[0;31m❌ Spotify callback route missing[0m
+[0;31m❌ Spotify SDK not installed[0m
+
+🎵 Music Search Implementation:
+[1;33m⚠️  Music search has TODOs[0m
+
+🔄 Real-time Configuration:
+[0;32m✅ Real-time client configured[0m
+
+[1m[0;34m═══════════════════════════════════════════════════════════════[0m
+[1m[0;36m  AUDIT SUMMARY REPORT[0m
+[1m[0;34m═══════════════════════════════════════════════════════════════[0m
+
+📊 Overall Statistics:
+  Total Checks: 149
+  ✅ Passed: 117
+  ⚠️  Warnings: 29
+  ❌ Errors: 3
+
+🏆 Health Score: 78%
+[1;33m👍 Good! Some improvements needed.[0m
+
+[0;31m🚨 CRITICAL ISSUES TO FIX:[0m
+1. Run 'npm install' if dependencies are missing
+2. Add missing 'use client' directives
+3. Fix TypeScript compilation errors
+4. Configure missing environment variables
+5. Implement missing core features
+
+📝 RECOMMENDATIONS:
+1. [0;36mNext Steps:[0m
+   • Fix all TypeScript errors
+   • Complete Spotify integration
+   • Implement real-time features
+   • Add comprehensive testing
+
+2. [0;36mPerformance:[0m
+   • Enable image optimization
+   • Implement code splitting
+   • Add caching strategies
+
+3. [0;36mSecurity:[0m
+   • Review API authentication
+   • Add rate limiting
+   • Implement CSRF protection
+
+📄 Full report saved to: /Users/mz/tootfm-v3/audit-reports/audit_20250831_131516.txt
+
+[1m[0;34m═══════════════════════════════════════════════════════════════[0m
+[1m[0;36m  AUDIT COMPLETE[0m
+[1m[0;34m═══════════════════════════════════════════════════════════════[0m

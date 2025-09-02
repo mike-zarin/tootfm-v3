@@ -1,0 +1,223 @@
+Need to install the following packages:
+ts-prune@0.10.3
+Ok to proceed? (y) 
+middleware.ts:6 - middleware
+middleware.ts:30 - config
+tailwind.config.ts:80 - default
+app/layout.tsx:14 - default
+app/layout.tsx:9 - metadata
+app/page.tsx:10 - default
+hooks/use-toast.ts:76 - reducer (used in module)
+hooks/use-toast.ts:193 - toast (used in module)
+lib/api-utils.ts:12 - handleApiError
+lib/api-utils.ts:35 - requireAuth
+lib/api-utils.ts:42 - generatePartyCode
+lib/api-utils.ts:3 - ApiError (used in module)
+lib/migrate-data.ts:7 - migrateOldData (used in module)
+lib/spotify.ts:121 - searchTracks (used in module)
+lib/spotify.ts:128 - getUserTopTracks
+lib/spotify.ts:135 - getUserTopArtists
+lib/spotify.ts:142 - getAudioFeatures
+lib/spotify.ts:12 - SPOTIFY_SCOPES (used in module)
+lib/storage.ts:367 - getUsers (used in module)
+lib/storage.ts:368 - getUser (used in module)
+lib/storage.ts:369 - getUserByEmail (used in module)
+lib/storage.ts:370 - createUser (used in module)
+lib/storage.ts:371 - updateUser (used in module)
+lib/storage.ts:373 - getParties (used in module)
+lib/storage.ts:374 - getParty (used in module)
+lib/storage.ts:375 - getPartyByCode (used in module)
+lib/storage.ts:376 - createParty (used in module)
+lib/storage.ts:377 - updateParty (used in module)
+lib/storage.ts:379 - getMemberships (used in module)
+lib/storage.ts:380 - createMembership (used in module)
+lib/storage.ts:381 - getMembership (used in module)
+lib/storage.ts:385 - updateTrack (used in module)
+lib/storage.ts:389 - getVotes (used in module)
+lib/storage.ts:391 - getMusicProfile (used in module)
+lib/storage.ts:392 - saveMusicProfile (used in module)
+lib/storage.ts:394 - getUserParties (used in module)
+lib/storage.ts:395 - getPartyMemberCount (used in module)
+lib/storage.ts:396 - getPartyTrackCount (used in module)
+lib/storage.ts:400 - findPartyByCode (used in module)
+lib/storage.ts:402 - joinParty (used in module)
+lib/storage.ts:403 - generateUniquePartyCode (used in module)
+lib/storage.ts:404 - readData (used in module)
+lib/websocket.ts:1 - PartyWebSocket (used in module)
+lib/websocket.ts:34 - partySocket
+lib.backup/api-utils.ts:12 - handleApiError
+lib.backup/api-utils.ts:35 - requireAuth
+lib.backup/api-utils.ts:42 - generatePartyCode
+lib.backup/api-utils.ts:3 - ApiError (used in module)
+lib.backup/auth-config.ts:2 - authConfig
+lib.backup/auth-options.ts:19 - authOptions
+lib.backup/migrate-data.ts:7 - migrateOldData (used in module)
+lib.backup/storage.ts:321 - storage (used in module)
+lib.backup/storage.ts:324 - getUsers (used in module)
+lib.backup/storage.ts:325 - getUser (used in module)
+lib.backup/storage.ts:326 - getUserByEmail (used in module)
+lib.backup/storage.ts:327 - createUser (used in module)
+lib.backup/storage.ts:328 - updateUser (used in module)
+lib.backup/storage.ts:330 - getParties (used in module)
+lib.backup/storage.ts:331 - getParty (used in module)
+lib.backup/storage.ts:332 - getPartyByCode (used in module)
+lib.backup/storage.ts:333 - createParty (used in module)
+lib.backup/storage.ts:334 - updateParty (used in module)
+lib.backup/storage.ts:336 - getMemberships (used in module)
+lib.backup/storage.ts:337 - createMembership (used in module)
+lib.backup/storage.ts:338 - getMembership (used in module)
+lib.backup/storage.ts:340 - getTracks (used in module)
+lib.backup/storage.ts:341 - createTrack (used in module)
+lib.backup/storage.ts:342 - updateTrack (used in module)
+lib.backup/storage.ts:343 - deleteTrack (used in module)
+lib.backup/storage.ts:345 - createVote (used in module)
+lib.backup/storage.ts:346 - getVotes (used in module)
+lib.backup/storage.ts:348 - getMusicProfile (used in module)
+lib.backup/storage.ts:349 - saveMusicProfile (used in module)
+lib.backup/storage.ts:351 - getUserParties (used in module)
+lib.backup/storage.ts:352 - getPartyMemberCount (used in module)
+lib.backup/storage.ts:353 - getPartyTrackCount (used in module)
+lib.backup/storage.ts:356 - findPartyById (used in module)
+lib.backup/storage.ts:357 - findPartyByCode (used in module)
+lib.backup/storage.ts:358 - getPartyMembers (used in module)
+lib.backup/storage.ts:359 - joinParty (used in module)
+lib.backup/storage.ts:360 - generateUniquePartyCode (used in module)
+lib.backup/storage.ts:361 - readData (used in module)
+lib.backup/utils.ts:5 - cn
+lib.backup/websocket.ts:1 - PartyWebSocket (used in module)
+lib.backup/websocket.ts:34 - partySocket
+types/index.ts:30 - SpotifyArtist (used in module)
+types/index.ts:94 - CreatePartyRequest
+types/index.ts:105 - JoinPartyRequest
+types/index.ts:109 - JoinPartyResponse
+types/index.ts:116 - PartyWithCounts
+types/index.ts:131 - VoteRequest
+types/index.ts:174 - SpotifyPlayerState
+types/index.ts:5 - UnifiedTrack
+types/index.ts:54 - UnifiedArtist
+types/index.ts:83 - AudioFeatures
+types/index.ts:99 - MusicSource
+types/index.ts:117 - ListeningEntry
+types/index.ts:125 - GenrePreference
+types/index.ts:132 - MusicPortrait
+types/index.ts:205 - TrackMatcher
+types/index.ts:216 - TrackConverter
+types/index.ts:217 - ArtistConverter
+types/spotify-fix.ts:2 - SpotifyProfile (used in module)
+types/spotify-fix.ts:17 - StorageData
+app/party/page.tsx:27 - default
+components/music/ConnectSpotify.tsx:8 - ConnectSpotify
+components/party/PartyCard.tsx:26 - PartyCard
+components/spotify/index.ts:1 - SpotifyConnect
+components/spotify/index.ts:2 - SpotifyPlayer
+components/ui/avatar.tsx:51 - Avatar (used in module)
+components/ui/avatar.tsx:51 - AvatarImage (used in module)
+components/ui/avatar.tsx:51 - AvatarFallback (used in module)
+components/ui/badge.tsx:28 - BadgeProps (used in module)
+components/ui/badge.tsx:38 - badgeVariants (used in module)
+components/ui/button.tsx:38 - ButtonProps (used in module)
+components/ui/button.tsx:58 - buttonVariants (used in module)
+components/ui/card.tsx:81 - CardFooter (used in module)
+components/ui/dialog.tsx:113 - Dialog (used in module)
+components/ui/dialog.tsx:114 - DialogPortal (used in module)
+components/ui/dialog.tsx:115 - DialogOverlay (used in module)
+components/ui/dialog.tsx:116 - DialogClose (used in module)
+components/ui/dialog.tsx:117 - DialogTrigger (used in module)
+components/ui/dialog.tsx:118 - DialogContent (used in module)
+components/ui/dialog.tsx:119 - DialogHeader (used in module)
+components/ui/dialog.tsx:120 - DialogFooter (used in module)
+components/ui/dialog.tsx:121 - DialogTitle (used in module)
+components/ui/dialog.tsx:122 - DialogDescription (used in module)
+components/ui/dropdown-menu.tsx:186 - DropdownMenu (used in module)
+components/ui/dropdown-menu.tsx:187 - DropdownMenuTrigger (used in module)
+components/ui/dropdown-menu.tsx:188 - DropdownMenuContent (used in module)
+components/ui/dropdown-menu.tsx:189 - DropdownMenuItem (used in module)
+components/ui/dropdown-menu.tsx:190 - DropdownMenuCheckboxItem (used in module)
+components/ui/dropdown-menu.tsx:191 - DropdownMenuRadioItem (used in module)
+components/ui/dropdown-menu.tsx:192 - DropdownMenuLabel (used in module)
+components/ui/dropdown-menu.tsx:193 - DropdownMenuSeparator (used in module)
+components/ui/dropdown-menu.tsx:194 - DropdownMenuShortcut (used in module)
+components/ui/dropdown-menu.tsx:195 - DropdownMenuGroup (used in module)
+components/ui/dropdown-menu.tsx:196 - DropdownMenuPortal (used in module)
+components/ui/dropdown-menu.tsx:197 - DropdownMenuSub (used in module)
+components/ui/dropdown-menu.tsx:198 - DropdownMenuSubContent (used in module)
+components/ui/dropdown-menu.tsx:199 - DropdownMenuSubTrigger (used in module)
+components/ui/dropdown-menu.tsx:200 - DropdownMenuRadioGroup (used in module)
+components/ui/form.tsx:171 - useFormField (used in module)
+components/ui/form.tsx:172 - Form (used in module)
+components/ui/form.tsx:173 - FormItem (used in module)
+components/ui/form.tsx:174 - FormLabel (used in module)
+components/ui/form.tsx:175 - FormControl (used in module)
+components/ui/form.tsx:176 - FormDescription (used in module)
+components/ui/form.tsx:177 - FormMessage (used in module)
+components/ui/form.tsx:178 - FormField (used in module)
+components/ui/scroll-area.tsx:49 - ScrollArea (used in module)
+components/ui/scroll-area.tsx:49 - ScrollBar (used in module)
+components/ui/select.tsx:151 - Select (used in module)
+components/ui/select.tsx:152 - SelectGroup (used in module)
+components/ui/select.tsx:153 - SelectValue (used in module)
+components/ui/select.tsx:154 - SelectTrigger (used in module)
+components/ui/select.tsx:155 - SelectContent (used in module)
+components/ui/select.tsx:156 - SelectLabel (used in module)
+components/ui/select.tsx:157 - SelectItem (used in module)
+components/ui/select.tsx:158 - SelectSeparator (used in module)
+components/ui/select.tsx:159 - SelectScrollUpButton (used in module)
+components/ui/select.tsx:160 - SelectScrollDownButton (used in module)
+components/ui/separator.tsx:32 - Separator (used in module)
+components/ui/skeleton.tsx:17 - Skeleton (used in module)
+components/ui/switch.tsx:30 - Switch (used in module)
+components/ui/textarea.tsx:6 - TextareaProps (used in module)
+components/ui/textarea.tsx:25 - Textarea (used in module)
+components/ui/toast.tsx:129 - ToastAction (used in module)
+components/ui/toaster.tsx:14 - Toaster
+components/ui/use-toast.tsx:74 - reducer (used in module)
+components/ui/use-toast.tsx:189 - toast (used in module)
+lib/converters/index.ts:6 - convertSpotifyTrack
+lib/converters/index.ts:38 - convertSpotifyArtist
+lib/converters/index.ts:57 - convertSpotifyAudioFeatures
+lib/converters/index.ts:76 - convertSpotifyApiTrack
+lib/converters/index.ts:5 - convertAppleTrack
+lib/converters/index.ts:40 - convertAppleArtist
+lib/converters/index.ts:60 - convertAppleLibraryTrack
+lib/converters/index.ts:6 - convertLastfmTrack
+lib/converters/index.ts:53 - convertLastfmArtist
+lib/converters/index.ts:79 - convertLastfmTopTrack
+lib/converters/index.ts:4 - normalizeGenre
+lib/converters/index.ts:25 - extractISRC
+lib/converters/index.ts:40 - generateTrackId
+lib/converters.backup.1756663935/index.ts:6 - convertSpotifyTrack
+lib/converters.backup.1756663935/index.ts:26 - convertSpotifyArtist
+lib/converters.backup.1756663935/index.ts:5 - convertAppleTrack
+lib/converters.backup.1756663935/index.ts:26 - convertAppleArtist
+lib/converters.backup.1756663935/index.ts:5 - convertLastfmTrack
+lib/converters.backup.1756663935/index.ts:24 - convertLastfmArtist
+app/api/health/route.ts:3 - GET
+app/api/parties/route.ts:22 - POST
+app/api/parties/route.ts:98 - GET
+app/auth/error/page.tsx:35 - default
+app/auth/signin/page.tsx:41 - default
+app/party/[id]/page.tsx:16 - default
+app/party/create/page.tsx:4 - default
+app/party/join/page.tsx:4 - default
+app/api/auth/[...nextauth]/route.ts:5 - GET
+app/api/auth/[...nextauth]/route.ts:5 - POST
+app/api/music/profiles/route.ts:8 - GET
+app/api/music/search/route.ts:31 - GET
+app/api/music/search/route.ts:102 - revalidate
+app/api/music/sync/route.ts:29 - POST
+app/api/parties/[id]/route.ts:9 - GET
+app/api/parties/[id]/route.ts:76 - DELETE
+app/api/parties/[id]/route.ts:137 - PATCH
+app/api/parties/[id]/route.ts:198 - revalidate
+app/api/parties/join/route.ts:14 - POST
+app/api/spotify/player/route.ts:8 - PUT
+app/api/spotify/player/route.ts:47 - POST
+app/api/spotify/player/route.ts:66 - GET
+app/api/auth/spotify/callback/route.ts:8 - GET
+app/api/auth/spotify/connect/route.ts:6 - GET
+app/api/auth/spotify/login/route.ts:25 - GET
+app/api/auth/spotify/refresh/route.ts:7 - POST
+app/api/parties/[id]/tracks/route.ts:27 - GET
+app/api/parties/[id]/tracks/route.ts:61 - POST
+app/party/[id]/tracks/[trackId]/vote/route.ts:13 - POST
+app/api/parties/[id]/tracks/[trackId]/vote/route.ts:13 - POST

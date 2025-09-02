@@ -1,0 +1,239 @@
+// apps/web/types/index.ts
+
+// ============= User & Auth Types =============
+export interface User {
+  id: string;
+  email: string;
+  name?: string;
+  image?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  
+  // Music service profiles (добавлено для совместимости)
+  spotifyProfile?: SpotifyProfile;
+  appleMusicProfile?: AppleMusicProfile;
+  musicPortrait?: MusicPortrait;
+  unifiedMusicPortrait?: MusicPortrait;
+}
+
+// Spotify Profile для storage
+export interface SpotifyProfile {
+  id?: string;
+  displayName?: string;
+  email?: string;
+  product?: string;
+  country?: string;
+  images?: { url: string }[];
+  
+  // Auth tokens
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: string;
+  
+  // Metadata
+  spotifyId?: string;
+  userId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+// Apple Music Profile
+export interface AppleMusicProfile {
+  musicUserToken: string;
+  connectedAt: string;
+}
+
+// Music Portrait (simplified version for storage)
+export interface MusicPortrait {
+  userId: string;
+  source: 'spotify' | 'apple-music' | 'unified';
+  topGenres: string[];
+  topArtists: Array<{
+    id: string;
+    name: string;
+    imageUrl: string | null;
+    genres: string[];
+  }>;
+  topTracks: Array<{
+    id: string;
+    name: string;
+    artist: string;
+    imageUrl: string | null;
+  }>;
+  audioFeatures?: {
+    danceability: number;
+    energy: number;
+    valence: number;
+    acousticness: number;
+    instrumentalness: number;
+    liveness: number;
+    speechiness: number;
+    tempo: number;
+  };
+  partyReadiness?: number;
+  generatedAt: string;
+}
+
+// ============= Party Types =============
+export interface Party {
+  id: string;
+  code: string;
+  name: string;
+  description?: string;
+  hostId: string;
+  hostName?: string;
+  hostImage?: string | null;
+  status: "WAITING" | "ACTIVE" | "PAUSED" | "ENDED";
+  settings: {
+    maxMembers?: number;
+    maxTracks?: number;
+    autoPlay?: boolean;
+    votingEnabled?: boolean;
+    skipThreshold?: number;
+    explicitContentAllowed?: boolean;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Track {
+  id: string;
+  partyId: string;
+  position: number;
+  title: string;
+  artist: string;
+  album?: string;
+  duration?: number;
+  isrc?: string;
+  spotifyId?: string;
+  appleMusicId?: string;
+  imageUrl?: string;
+  previewUrl?: string;
+  addedById?: string;
+  addedByName?: string;
+  playedAt?: string;
+  createdAt: string;
+  votes?: number;
+}
+
+export interface Membership {
+  id: string;
+  userId: string;
+  partyId: string;
+  role: "host" | "dj" | "guest";
+  joinedAt: string;
+  leftAt?: string;
+}
+
+export interface Vote {
+  id: string;
+  userId: string;
+  trackId: string;
+  type: "up" | "down" | "skip";
+  createdAt: string;
+}
+
+// ============= API Request/Response Types =============
+export interface CreatePartyRequest {
+  name: string;
+  description?: string;
+  settings?: {
+    maxMembers?: number;
+    maxTracks?: number;
+    autoPlay?: boolean;
+    votingEnabled?: boolean;
+    skipThreshold?: number;
+    explicitContentAllowed?: boolean;
+  };
+}
+
+export interface JoinPartyRequest {
+  code: string;
+}
+
+export interface JoinPartyResponse {
+  success: boolean;
+  id?: string;
+  message?: string;
+  error?: string;
+}
+
+export interface PartyWithCounts extends Party {
+  members: number;
+  tracks: number;
+}
+
+export interface AddTrackRequest {
+  spotifyId?: string;
+  appleMusicId?: string;
+  title: string;
+  artist: string;
+  album?: string;
+  duration?: number;
+  imageUrl?: string;
+  previewUrl?: string;
+}
+
+export interface VoteRequest {
+  trackId: string;
+  type: "up" | "down" | "skip";
+}
+
+// ============= Spotify API Types =============
+export interface SpotifyTrack {
+  id: string;
+  uri: string;
+  name: string;
+  artists: { id: string; name: string }[];
+  album: {
+    id: string;
+    name: string;
+    images: { url: string; width?: number; height?: number }[];
+  };
+  duration_ms: number;
+  explicit: boolean;
+  preview_url?: string;
+  popularity?: number;
+  isrc?: string;
+  external_ids?: {
+    isrc?: string;
+  };
+}
+
+export interface SpotifyArtist {
+  id: string;
+  name: string;
+  genres: string[];
+  popularity: number;
+  images?: { url: string; width?: number; height?: number }[];
+  followers?: {
+    total: number;
+  };
+}
+
+export interface SpotifyPlayerState {
+  partyId: string;
+  isPlaying: boolean;
+  currentTrack?: SpotifyTrack;
+  position: number;
+  deviceId?: string;
+  volume: number;
+  shuffle: boolean;
+  repeat: 'off' | 'context' | 'track';
+}
+
+export interface SearchTracksResponse {
+  tracks: SpotifyTrack[];
+}
+
+// ============= Storage Data Structure =============
+export interface StorageData {
+  users: User[];
+  parties: Party[];
+  tracks: Track[];
+  memberships: Membership[];
+  votes?: Vote[];
+}
+
+// Re-export music types
+export * from './music';

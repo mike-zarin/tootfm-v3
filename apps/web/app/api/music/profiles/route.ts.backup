@@ -1,0 +1,30 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authConfig } from '@tootfm/auth';
+import { prisma } from '@tootfm/database';
+
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getServerSession(authConfig);
+    
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    const profiles = await prisma.musicProfile.findMany({
+      where: { userId: session.user.id },
+      select: {
+        id: true,
+        service: true,
+        lastSyncedAt: true,
+        topTracks: true,
+        topArtists: true,
+        topGenres: true
+      }
+    });
+    
+    return NextResponse.json(profiles);
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to fetch profiles' }, { status: 500 });
+  }
+}

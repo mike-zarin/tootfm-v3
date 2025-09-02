@@ -1,0 +1,364 @@
+════════════════════════════════════════════════════════════════
+                    TOOTFM PROJECT AUDIT REPORT                 
+════════════════════════════════════════════════════════════════
+Date: Sun Aug 31 12:41:12 EEST 2025
+Directory: /Users/mz/tootfm-v3
+════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────┐
+│                    1. PROJECT STRUCTURE                      │
+└─────────────────────────────────────────────────────────────┘
+📁 Directory Tree (3 levels, excluding node_modules):
+────────────────────────────────────────────────────────────────
+.
+ .husky
+  _
+ .turbo
+  daemon
+  cookies
+ scripts
+ packages
+  ui
+   src
+    components
+  database
+   dist
+   prisma
+    migrations
+     20250828114505_init
+   scripts
+   src
+  auth
+   dist
+   src
+  music-api
+   src
+ .github
+  workflows
+ apps
+  web
+   types
+   app
+    party
+     join
+     [id]
+      tracks
+       [trackId]
+        vote
+     create
+    auth
+     signin
+     error
+    api
+     music
+      search
+      profiles
+      sync
+       [service]
+      disconnect
+       [service]
+     pusher
+     auth
+      [...nextauth]
+
+📊 File Count by Type:
+────────────────────────────────────────────────────────────────
+TypeScript files:       89
+JavaScript files:       77
+JSON files:       36
+Total files:      193
+
+💾 Directory Sizes:
+────────────────────────────────────────────────────────────────
+ 73M	apps/web
+ 96K	packages/auth
+108K	packages/database
+ 68K	packages/music-api
+ 36K	packages/ui
+
+┌─────────────────────────────────────────────────────────────┐
+│                    2. CONFIGURATION FILES                    │
+└─────────────────────────────────────────────────────────────┘
+⚙️ Config Files Found:
+────────────────────────────────────────────────────────────────
+-rw-r--r--@ 1 mz  staff     889 Aug 28 18:56 .env.example
+-rw-r--r--@ 1 mz  staff     828 Aug 29 22:27 .env.local
+-rw-r--r--@ 1 mz  staff      55 Aug 28 19:44 data.json
+-rw-r--r--@ 1 mz  staff  323712 Aug 31 12:18 package-lock.json
+-rw-r--r--@ 1 mz  staff     911 Aug 28 14:55 package.json
+-rw-r--r--@ 1 mz  staff     492 Aug 28 13:12 tsconfig.json
+-rw-r--r--@ 1 mz  staff     686 Aug 28 13:08 turbo.json
+
+┌─────────────────────────────────────────────────────────────┐
+│                    3. DEPENDENCIES                           │
+└─────────────────────────────────────────────────────────────┘
+📦 Root package.json dependencies:
+────────────────────────────────────────────────────────────────
+  "dependencies": {
+    "@next-auth/prisma-adapter": "^1.0.7"
+  }
+}
+
+📦 Web App dependencies (apps/web/package.json):
+────────────────────────────────────────────────────────────────
+  "dependencies": {
+    "@hookform/resolvers": "^3.10.0",
+    "@radix-ui/react-avatar": "^1.1.10",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
+    "@radix-ui/react-label": "^2.1.7",
+    "@radix-ui/react-scroll-area": "^1.2.10",
+    "@radix-ui/react-select": "^2.2.6",
+    "@radix-ui/react-separator": "^1.1.7",
+    "@radix-ui/react-slider": "^1.3.6",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-switch": "^1.2.6",
+    "@radix-ui/react-tabs": "^1.1.13",
+    "@radix-ui/react-toast": "^1.2.15",
+    "@tanstack/react-query": "^5.18.0",
+    "@tootfm/auth": "*",
+    "@tootfm/database": "*",
+    "@tootfm/music-api": "*",
+    "@tootfm/ui": "*",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "date-fns": "^3.3.1",
+    "lucide-react": "^0.314.0",
+    "next": "14.2.5",
+    "next-auth": "^4.24.5",
+    "pusher": "^5.2.0",
+    "pusher-js": "^8.4.0-rc2",
+    "qrcode.react": "^3.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.62.0",
+
+┌─────────────────────────────────────────────────────────────┐
+│                    4. DATA STORAGE                           │
+└─────────────────────────────────────────────────────────────┘
+🗄️ Storage Implementation:
+────────────────────────────────────────────────────────────────
+File: apps/web/lib/storage.ts
+16:class Storage {
+321:export const storage = new Storage();
+324:export const getUsers = storage.getUsers.bind(storage);
+325:export const getUser = storage.getUser.bind(storage);
+326:export const getUserByEmail = storage.getUserByEmail.bind(storage);
+327:export const createUser = storage.createUser.bind(storage);
+328:export const updateUser = storage.updateUser.bind(storage);
+330:export const getParties = storage.getParties.bind(storage);
+331:export const getParty = storage.getParty.bind(storage);
+332:export const getPartyByCode = storage.getPartyByCode.bind(storage);
+333:export const createParty = storage.createParty.bind(storage);
+334:export const updateParty = storage.updateParty.bind(storage);
+336:export const getMemberships = storage.getMemberships.bind(storage);
+337:export const createMembership = storage.createMembership.bind(storage);
+338:export const getMembership = storage.getMembership.bind(storage);
+340:export const getTracks = storage.getTracks.bind(storage);
+341:export const createTrack = storage.createTrack.bind(storage);
+342:export const updateTrack = storage.updateTrack.bind(storage);
+343:export const deleteTrack = storage.deleteTrack.bind(storage);
+345:export const createVote = storage.createVote.bind(storage);
+
+📄 Data Files:
+────────────────────────────────────────────────────────────────
+./data.json
+./apps/web/data.json
+data.json content preview:
+{"users":[],"parties":[],"tracks":[],"memberships":[]}
+
+🔍 Prisma Usage Check:
+────────────────────────────────────────────────────────────────
+Files importing Prisma:        0
+Files importing storage:       11
+
+┌─────────────────────────────────────────────────────────────┐
+│                    5. API ROUTES                             │
+└─────────────────────────────────────────────────────────────┘
+🛣️ API Routes Structure:
+────────────────────────────────────────────────────────────────
+apps/web/app/api/auth/[...nextauth]/route.ts
+apps/web/app/api/health/route.ts
+apps/web/app/api/music/profiles/route.ts
+apps/web/app/api/music/search/route.ts
+apps/web/app/api/music/sync/route.ts
+apps/web/app/api/parties/[id]/route.ts
+apps/web/app/api/parties/[id]/tracks/[trackId]/vote/route.ts
+apps/web/app/api/parties/[id]/tracks/route.ts
+apps/web/app/api/parties/join/route.ts
+apps/web/app/api/parties/route.ts
+
+┌─────────────────────────────────────────────────────────────┐
+│                    6. PAGES & COMPONENTS                     │
+└─────────────────────────────────────────────────────────────┘
+📄 Pages (page.tsx files):
+────────────────────────────────────────────────────────────────
+apps/web/app/auth/error/page.tsx
+apps/web/app/auth/signin/page.tsx
+apps/web/app/page.tsx
+apps/web/app/party/[id]/page.tsx
+apps/web/app/party/create/page.tsx
+apps/web/app/party/join/page.tsx
+
+🧩 Components:
+────────────────────────────────────────────────────────────────
+apps/web/components/music/ConnectSpotify.tsx
+apps/web/components/music/TrackQueue.tsx
+apps/web/components/music/TrackSearch.tsx
+apps/web/components/party/CopyCodeButton.tsx
+apps/web/components/party/CreatePartyForm.tsx
+apps/web/components/party/JoinPartyForm.tsx
+apps/web/components/party/PartyCard.tsx
+apps/web/components/ui/avatar.tsx
+apps/web/components/ui/badge.tsx
+apps/web/components/ui/button.tsx
+apps/web/components/ui/card.tsx
+apps/web/components/ui/dialog.tsx
+apps/web/components/ui/dropdown-menu.tsx
+apps/web/components/ui/form.tsx
+apps/web/components/ui/input.tsx
+apps/web/components/ui/label.tsx
+apps/web/components/ui/scroll-area.tsx
+apps/web/components/ui/select.tsx
+apps/web/components/ui/separator.tsx
+apps/web/components/ui/skeleton.tsx
+
+┌─────────────────────────────────────────────────────────────┐
+│                    7. ENVIRONMENT VARIABLES                  │
+└─────────────────────────────────────────────────────────────┘
+�� Environment Variables (.env.example):
+────────────────────────────────────────────────────────────────
+DATABASE_URL=...
+NEXTAUTH_URL=...
+NEXTAUTH_SECRET=...
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+SPOTIFY_CLIENT_ID=...
+SPOTIFY_CLIENT_SECRET=...
+SPOTIFY_REDIRECT_URI=...
+APPLE_TEAM_ID=...
+APPLE_KEY_ID=...
+APPLE_PRIVATE_KEY=...
+LASTFM_API_KEY=...
+LASTFM_API_SECRET=...
+PUSHER_APP_ID=...
+PUSHER_KEY=...
+PUSHER_SECRET=...
+PUSHER_CLUSTER=...
+NEXT_PUBLIC_PUSHER_KEY=...
+NEXT_PUBLIC_PUSHER_CLUSTER=...
+ENABLE_SPOTIFY=...
+ENABLE_APPLE_MUSIC=...
+ENABLE_LASTFM=...
+NODE_ENV=...
+
+🔑 Configured Variables (.env.local):
+────────────────────────────────────────────────────────────────
+DATABASE_URL=***HIDDEN***
+NEXTAUTH_URL=***HIDDEN***
+NEXTAUTH_SECRET=***HIDDEN***
+GOOGLE_CLIENT_ID=***HIDDEN***
+GOOGLE_CLIENT_SECRET=***HIDDEN***
+SPOTIFY_CLIENT_ID=***HIDDEN***
+SPOTIFY_CLIENT_SECRET=***HIDDEN***
+SPOTIFY_REDIRECT_URI=***HIDDEN***
+PUSHER_APP_ID=***HIDDEN***
+PUSHER_KEY=***HIDDEN***
+PUSHER_SECRET=***HIDDEN***
+PUSHER_CLUSTER=***HIDDEN***
+ENABLE_SPOTIFY=***HIDDEN***
+ENABLE_APPLE_MUSIC=***HIDDEN***
+ENABLE_LASTFM=***HIDDEN***
+NODE_ENV=***HIDDEN***
+ENABLE_SPOTIFY=***HIDDEN***
+ENABLE_APPLE_MUSIC=***HIDDEN***
+ENABLE_LASTFM=***HIDDEN***
+
+┌─────────────────────────────────────────────────────────────┐
+│                    8. MUSIC & REALTIME                       │
+└─────────────────────────────────────────────────────────────┘
+🎵 Music Integration Files:
+────────────────────────────────────────────────────────────────
+./step5-music-api.sh
+./packages/music-api/src/spotify.service.ts
+
+🔄 Realtime (Pusher/WebSocket) Usage:
+────────────────────────────────────────────────────────────────
+Pusher mentions:        0
+WebSocket mentions:        4
+
+┌─────────────────────────────────────────────────────────────┐
+│                    9. CODE QUALITY                           │
+└─────────────────────────────────────────────────────────────┘
+⚠️ TODO/FIXME Comments:
+────────────────────────────────────────────────────────────────
+apps/web/app/api/music/profiles/route.ts:  // TODO: Получить музыкальные профили пользователя из storage
+apps/web/app/api/music/sync/route.ts:      // TODO: Implement actual sync logic
+apps/web/app/api/music/sync/route.ts:        tracksAdded: 0 // TODO: Return actual count
+
+📊 Code Statistics:
+────────────────────────────────────────────────────────────────
+Total lines of TypeScript code: 5940
+
+📏 Largest Files:
+────────────────────────────────────────────────────────────────
+    5940 total
+     360 apps/web/lib/storage.ts
+     343 apps/web/.next/types/app/api/music/sync/route.ts
+     343 apps/web/.next/types/app/api/auth/[...nextauth]/route.ts
+     215 apps/web/components/music/TrackQueue.tsx
+     201 apps/web/components/ui/dropdown-menu.tsx
+     196 apps/web/app/api/parties/[id]/route.ts
+     193 apps/web/hooks/use-toast.ts
+     188 apps/web/components/ui/use-toast.tsx
+     187 apps/web/components/music/TrackSearch.tsx
+
+┌─────────────────────────────────────────────────────────────┐
+│                    10. BUILD & RUN STATUS                    │
+└─────────────────────────────────────────────────────────────┘
+🏃 Running Processes:
+────────────────────────────────────────────────────────────────
+mz               88933   0.0  0.1 1621820336   5200   ??  S    Fri05PM   0:01.65 /Applications/Cursor.app/Contents/Frameworks/Cursor Helper (Plugin).app/Contents/MacOS/Cursor Helper (Plugin) /Applications/Cursor.app/Contents/Resources/app/extensions/node_modules/typescript/lib/typingsInstaller.js --globalTypingsCacheLocation /Users/mz/Library/Caches/typescript/5.8 --enableTelemetry --typesMapLocation /Applications/Cursor.app/Contents/Resources/app/extensions/node_modules/typescript/lib/typesMap.json --validateDefaultNpmLocation
+mz               88752   0.0  0.1 1621824624   7744   ??  S    Fri05PM   0:05.87 /Applications/Cursor.app/Contents/Frameworks/Cursor Helper (Plugin).app/Contents/MacOS/Cursor Helper (Plugin) /Applications/Cursor.app/Contents/Resources/app/extensions/json-language-features/server/dist/node/jsonServerMain --node-ipc --clientProcessId=88064
+
+🔧 NPM Scripts Available:
+────────────────────────────────────────────────────────────────
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "test": "turbo test",
+    "lint": "turbo lint",
+    "type-check": "turbo type-check",
+    "db:push": "turbo db:push",
+    "db:migrate": "turbo db:migrate",
+    "db:studio": "turbo db:studio",
+    "clean": "turbo clean && rm -rf node_modules",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "eslint": "^8.56.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.2.0",
+    "turbo": "^1.12.0",
+    "typescript": "^5.3.0"
+
+┌─────────────────────────────────────────────────────────────┐
+│                    11. QUICK DIAGNOSTICS                     │
+└─────────────────────────────────────────────────────────────┘
+✅ Checklist:
+────────────────────────────────────────────────────────────────
+✓ package.json exists
+✓ node_modules exists
+✓ apps/web configured
+✓ .env.local exists
+✓ data.json exists
+✓ Next.js build exists
+
+════════════════════════════════════════════════════════════════
+                    END OF AUDIT REPORT                         
+════════════════════════════════════════════════════════════════
+Report saved to: tootfm-audit-20250831-124112.txt
+Generated at: Sun Aug 31 12:41:14 EEST 2025
