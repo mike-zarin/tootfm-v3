@@ -36,10 +36,15 @@ class Storage {
     }
   }
   private async ensureDataFile(): Promise<void> {
+    // На production не пытаемся создавать файл
+    if (process.env.NODE_ENV === 'production') {
+      return;
+    }
+    
     try {
-      await fs.access(this.dataPath);
-    } catch {
-      const initialData: StorageData = {
+      await fs.readFile(this.dataPath, 'utf-8');
+    } catch (error) {
+      const emptyData = {
         users: [],
         parties: [],
         tracks: [],
@@ -49,7 +54,7 @@ class Storage {
         appleMusicProfiles: [],
         musicPortraits: []
       };
-      await fs.writeFile(this.dataPath, JSON.stringify(initialData, null, 2));
+      await fs.writeFile(this.dataPath, JSON.stringify(emptyData, null, 2));
     }
   }
   async getData(): Promise<StorageData> {
@@ -59,6 +64,11 @@ class Storage {
     return this.data!;
   }
   async saveData(data: StorageData): Promise<void> {
+    // На production не сохраняем в файл
+    if (process.env.NODE_ENV === 'production') {
+      console.warn('Cannot save data in production - filesystem is read-only');
+      return;
+    }
     await fs.writeFile(this.dataPath, JSON.stringify(data, null, 2));
     this.data = data;
   }
