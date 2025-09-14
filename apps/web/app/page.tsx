@@ -1,177 +1,193 @@
 // apps/web/app/page.tsx
 import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth-options";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { storage } from "@/lib/storage";
 import { Party } from "@/types";
+import { PartyPopper, Users, User, LogOut } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function HomePage() {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
 
   if (!session?.user?.email) {
     redirect("/auth/signin");
   }
 
-  // Получаем данные пользователя из storage - ВАЖНО: getUserByEmail это async функция!
+  // Get user data
   const user = await storage.getUserByEmail(session.user.email);
   
-  // Получаем партии пользователя
-  // storage использует методы, а не прямой доступ к data
-  const userParties: Party[] = [];
+  // Get user's parties
+  const allParties = await storage.getAllParties();
+  const userParties = allParties.filter((party: Party) => 
+    party.hostId === user?.id || party.memberIds?.includes(user?.id || '')
+  );
 
-  // Проверяем статус подключений
-  const hasSpotify = !!(user?.spotifyProfile?.accessToken);
-  const hasAppleMusic = !!(user?.appleMusicProfile);
-  const hasPortrait = !!(user?.musicPortrait);
+  const hostedParties = userParties.filter((party: Party) => party.hostId === user?.id);
+  const joinedParties = userParties.filter((party: Party) => party.hostId !== user?.id);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-6xl font-bold text-white mb-2">tootFM</h1>
-          <p className="text-xl text-purple-200">Democratic DJ for your parties</p>
-        </div>
+        <header className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-4xl font-bold text-white mb-2">TootFM</h1>
+            <p className="text-purple-200">Democratic DJ for your parties</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-200">
+              {session.user?.email}
+            </span>
+            <form
+              action={async () => {
+                "use server";
+                const { signOut } = await import("next-auth/react");
+                await signOut();
+              }}
+            >
+              <Button type="submit" variant="ghost" className="text-white hover:bg-white/10">
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </Button>
+            </form>
+          </div>
+        </header>
 
-        {/* Welcome Section */}
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 mb-8">
-          <h2 className="text-3xl font-bold text-white mb-2">
-            Welcome, {session.user.name || "Music Lover"}!
-          </h2>
-          <p className="text-purple-200">
-            {hasSpotify 
-              ? "Your Spotify is connected. Ready to party!" 
-              : "Connect your music service to get started"}
-          </p>
-        </div>
-
-        {/* Music Services */}
+        {/* Music Services Status */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">
           {/* Spotify Card */}
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-                  <span className="text-2xl">🎵</span>
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-white">Spotify</h3>
+          <Card className="bg-white/10 backdrop-blur-md border-white/20">
+            <CardHeader>
+              <CardTitle className="text-white">Spotify</CardTitle>
+              <CardDescription className="text-purple-200">
+                {user?.spotifyProfile ? 
+                  `Connected as ${user.spotifyProfile.displayName}` : 
+                  "Not connected"
+                }
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {!user?.spotifyProfile && (
+                <Link href="/api/auth/spotify/connect">
+                  <Button className="w-full bg-green-500 hover:bg-green-600">
+                    Connect Spotify
+                  </Button>
+                </Link>
+              )}
+              {user?.spotifyProfile && (
+                <div className="space-y-2">
                   <p className="text-sm text-purple-200">
-                    {hasSpotify 
-                      ? `Connected as ${user?.spotifyProfile?.displayName}` 
-                      : "Not connected"}
+                    Premium: {user.spotifyProfile.product === 'premium' ? '✓' : '✗'}
                   </p>
-                </div>
-              </div>
-            </div>
-            {!hasSpotify && (
-              <Link
-                href="/api/auth/spotify/connect"
-                className="block w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg text-center transition-colors"
-              >
-                Connect Spotify
-              </Link>
-            )}
-            {hasSpotify && (
-              <div className="space-y-2">
-                <p className="text-sm text-purple-200">
-                  Premium: {user?.spotifyProfile?.product === 'premium' ? '✓' : '✗'}
-                </p>
-                {!hasPortrait && (
-                  <Link
-                    href="/api/music/portrait"
-                    className="block w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg text-center transition-colors text-sm"
-                  >
-                    Generate Music Portrait
+                  <Link href="/api/music/portrait">
+                    <Button variant="secondary" className="w-full">
+                      Generate Music Portrait
+                    </Button>
                   </Link>
-                )}
-              </div>
-            )}
-          </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Apple Music Card */}
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center">
-                  <span className="text-2xl">🎵</span>
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-white">Apple Music</h3>
-                  <p className="text-sm text-purple-200">
-                    {hasAppleMusic ? "Connected" : "Not connected"}
-                  </p>
-                </div>
-              </div>
-            </div>
-            {!hasAppleMusic && (
-              <Link
-                href="/api/auth/apple-music/login"
-                className="block w-full bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg text-center transition-colors"
-              >
-                Connect Apple Music
-              </Link>
-            )}
-            {hasAppleMusic && (
-              <div className="space-y-2">
-                <p className="text-sm text-purple-200">
-                  Connected ✓
-                </p>
-              </div>
-            )}
-          </div>
+          <Card className="bg-white/10 backdrop-blur-md border-white/20">
+            <CardHeader>
+              <CardTitle className="text-white">Apple Music</CardTitle>
+              <CardDescription className="text-purple-200">
+                {user?.appleMusicProfile ? "Connected" : "Not connected"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {!user?.appleMusicProfile && (
+                <Button disabled className="w-full">
+                  Coming Soon
+                </Button>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid md:grid-cols-3 gap-4 mb-8">
-          <Link
-            href="/party/create"
-            className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-4 px-6 rounded-xl text-center transition-colors"
-          >
-            🎉 Create Party
+        {/* Party Actions */}
+        <div className="flex gap-4 mb-8">
+          <Link href="/party/create" className="flex-1">
+            <Button className="w-full bg-purple-600 hover:bg-purple-700">
+              <PartyPopper className="w-4 h-4 mr-2" />
+              Create Party
+            </Button>
           </Link>
-          <Link
-            href="/party/join"
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-4 px-6 rounded-xl text-center transition-colors"
-          >
-            🎊 Join Party
+          <Link href="/party/join" className="flex-1">
+            <Button className="w-full bg-indigo-600 hover:bg-indigo-700">
+              <Users className="w-4 h-4 mr-2" />
+              Join Party
+            </Button>
           </Link>
-          <button
-            disabled
-            className="bg-gray-600 text-gray-300 font-semibold py-4 px-6 rounded-xl text-center cursor-not-allowed"
-          >
-            👤 My Profile (Coming Soon)
-          </button>
         </div>
 
-        {/* Your Parties */}
-        {userParties.length > 0 && (
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6">
-            <h3 className="text-2xl font-bold text-white mb-4">Your Parties</h3>
-            <div className="grid gap-4">
-              {userParties.map((party) => (
-                <Link
-                  key={party.id}
-                  href={`/party/${party.id}`}
-                  className="bg-white/10 hover:bg-white/20 rounded-lg p-4 transition-colors"
-                >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h4 className="text-lg font-semibold text-white">{party.name}</h4>
-                      <p className="text-sm text-purple-200">Code: {party.code}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-purple-200">{party.status}</p>
-                      <p className="text-xs text-purple-300">
-                        Members: N/A
-                      </p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
+        {/* User's Parties */}
+        <div className="space-y-6">
+          {/* Hosted Parties */}
+          {hostedParties.length > 0 && (
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-4">Your Parties</h2>
+              <div className="grid gap-4">
+                {hostedParties.map((party: Party) => (
+                  <Link key={party.id} href={`/party/${party.id}`}>
+                    <Card className="bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/20 transition-colors cursor-pointer">
+                      <CardHeader>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <CardTitle className="text-white">{party.name}</CardTitle>
+                            <CardDescription className="text-purple-200">
+                              Code: {party.code} • {party.memberIds?.length || 0} members
+                            </CardDescription>
+                          </div>
+                          <span className="text-xs bg-purple-600 text-white px-2 py-1 rounded">
+                            Host
+                          </span>
+                        </div>
+                      </CardHeader>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+
+          {/* Joined Parties */}
+          {joinedParties.length > 0 && (
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-4">Joined Parties</h2>
+              <div className="grid gap-4">
+                {joinedParties.map((party: Party) => (
+                  <Link key={party.id} href={`/party/${party.id}`}>
+                    <Card className="bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/20 transition-colors cursor-pointer">
+                      <CardHeader>
+                        <CardTitle className="text-white">{party.name}</CardTitle>
+                        <CardDescription className="text-purple-200">
+                          Code: {party.code} • {party.memberIds?.length || 0} members
+                        </CardDescription>
+                      </CardHeader>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* No Parties */}
+          {userParties.length === 0 && (
+            <Card className="bg-white/10 backdrop-blur-md border-white/20">
+              <CardContent className="text-center py-12">
+                <PartyPopper className="w-16 h-16 mx-auto mb-4 text-purple-300" />
+                <p className="text-xl text-white mb-2">No parties yet</p>
+                <p className="text-purple-200">Create or join a party to get started!</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
     </div>
   );

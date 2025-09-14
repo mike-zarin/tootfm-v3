@@ -1,13 +1,11 @@
 // components/music/EnhancedMusicPortrait.tsx
 'use client';
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Music, Zap, Heart, Mic, Users, TrendingUp, Loader2 } from 'lucide-react';
 import { SpotifyIcon, AppleMusicIcon } from '@/components/icons';
-
 interface UnifiedPortrait {
   sources: string[];
   topTracks: Array<{
@@ -41,37 +39,30 @@ interface UnifiedPortrait {
   partyReadiness: number;
   generatedAt: string;
 }
-
 export function EnhancedMusicPortrait() {
   const [portrait, setPortrait] = useState<UnifiedPortrait | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   const fetchPortrait = async () => {
     setLoading(true);
     setError(null);
-    
     try {
       const response = await fetch('/api/music/unified-portrait');
       const data = await response.json();
-      
       if (!response.ok) {
         throw new Error(data.error || 'Failed to load portrait');
       }
-      
       setPortrait(data.portrait);
     } catch (err) {
-      console.error('Error fetching portrait:', err);
+      console.error('[ERROR]' + ' ' + 'Error fetching portrait:', err);
       setError(err instanceof Error ? err.message : 'Failed to load music portrait');
     } finally {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchPortrait();
   }, []);
-
   if (loading) {
     return (
       <Card className="w-full">
@@ -82,7 +73,6 @@ export function EnhancedMusicPortrait() {
       </Card>
     );
   }
-
   if (error) {
     return (
       <Card className="w-full border-red-200 bg-red-50">
@@ -98,7 +88,6 @@ export function EnhancedMusicPortrait() {
       </Card>
     );
   }
-
   if (!portrait) {
     return (
       <Card className="w-full">
@@ -108,7 +97,6 @@ export function EnhancedMusicPortrait() {
       </Card>
     );
   }
-
   const getFeatureIcon = (feature: string) => {
     switch (feature) {
       case 'energy': return <Zap className="h-4 w-4" />;
@@ -118,19 +106,16 @@ export function EnhancedMusicPortrait() {
       default: return <Music className="h-4 w-4" />;
     }
   };
-
   const getFeatureColor = (value: number) => {
     if (value >= 70) return 'text-green-600';
     if (value >= 40) return 'text-yellow-600';
     return 'text-red-600';
   };
-
   const getPartyReadinessColor = (value: number) => {
     if (value >= 70) return 'bg-green-500';
     if (value >= 40) return 'bg-yellow-500';
     return 'bg-red-500';
   };
-
   return (
     <div className="space-y-6">
       {/* Header with Party Readiness */}
@@ -181,7 +166,6 @@ export function EnhancedMusicPortrait() {
           </div>
         </CardContent>
       </Card>
-
       {/* Audio Features */}
       <Card>
         <CardHeader>
@@ -217,7 +201,6 @@ export function EnhancedMusicPortrait() {
           </div>
         </CardContent>
       </Card>
-
       {/* Top Genres */}
       <Card>
         <CardHeader>
@@ -237,7 +220,6 @@ export function EnhancedMusicPortrait() {
           </div>
         </CardContent>
       </Card>
-
       {/* Top Artists */}
       <Card>
         <CardHeader>
@@ -286,7 +268,6 @@ export function EnhancedMusicPortrait() {
           </div>
         </CardContent>
       </Card>
-
       {/* Top Tracks Preview */}
       <Card>
         <CardHeader>
@@ -331,7 +312,6 @@ export function EnhancedMusicPortrait() {
           </div>
         </CardContent>
       </Card>
-
       {/* Last Updated */}
       <div className="text-center text-sm text-muted-foreground">
         Last updated: {new Date(portrait.generatedAt).toLocaleString()}

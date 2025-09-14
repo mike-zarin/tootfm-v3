@@ -70,7 +70,7 @@ export class SpotifyService implements MusicService {
       album: item.album?.name,
       duration: item.duration_ms,
       imageUrl: item.album?.images[0]?.url,
-      previewUrl: item.preview_url
+      previewUrl: item.preview_url || undefined
     }));
   }
 
@@ -105,7 +105,7 @@ export class SpotifyService implements MusicService {
       album: item.album?.name,
       duration: item.duration_ms,
       imageUrl: item.album?.images[0]?.url,
-      previewUrl: item.preview_url
+      previewUrl: item.preview_url || undefined
     })) || [];
   }
 
@@ -116,7 +116,7 @@ export class SpotifyService implements MusicService {
     const meResponse = await this.spotifyApi.getMe();
     const spotifyUserId = meResponse.body.id;
     
-    const playlist = await this.spotifyApi.createPlaylist(spotifyUserId, name, {
+    const playlistResponse = await (this.spotifyApi as any).createPlaylist(spotifyUserId, name, {
       description: `Created by tootFM on ${new Date().toLocaleDateString()}`,
       public: false
     });
@@ -126,10 +126,10 @@ export class SpotifyService implements MusicService {
       .map(t => `spotify:track:${t.spotifyId}`);
     
     if (spotifyUris.length > 0) {
-      await this.spotifyApi.addTracksToPlaylist(playlist.body.id, spotifyUris);
+      await this.spotifyApi.addTracksToPlaylist((playlistResponse as any).body.id, spotifyUris);
     }
     
-    return playlist.body.external_urls.spotify;
+    return (playlistResponse as any).body.external_urls.spotify;
   }
 
   async refreshToken(userId: string): Promise<AuthTokens> {

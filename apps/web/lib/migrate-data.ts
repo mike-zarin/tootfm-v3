@@ -1,15 +1,11 @@
 // apps/web/lib/migrate-data.ts
 import fs from 'fs';
 import path from 'path';
-
 const DATA_FILE = path.join(process.cwd(), 'data.json');
-
 export function migrateOldData() {
   if (!fs.existsSync(DATA_FILE)) return;
-  
   const raw = fs.readFileSync(DATA_FILE, 'utf-8');
   const data = JSON.parse(raw);
-  
   // Check if it's old format (parties as array of arrays)
   if (Array.isArray(data.parties) && data.parties.length > 0) {
     if (Array.isArray(data.parties[0])) {
@@ -18,7 +14,6 @@ export function migrateOldData() {
       data.parties = newParties;
     }
   }
-  
   // Ensure all required fields exist
   const migrated = {
     users: data.users || [],
@@ -26,7 +21,6 @@ export function migrateOldData() {
     tracks: data.tracks || [],
     memberships: data.memberships || []
   };
-  
   // Create memberships for existing parties
   if (migrated.memberships.length === 0 && migrated.parties.length > 0) {
     migrated.parties.forEach((party: any) => {
@@ -40,10 +34,8 @@ export function migrateOldData() {
       });
     });
   }
-  
   fs.writeFileSync(DATA_FILE, JSON.stringify(migrated, null, 2));
   // console.log('Data migrated successfully');
 }
-
 // Run migration on import
 migrateOldData();

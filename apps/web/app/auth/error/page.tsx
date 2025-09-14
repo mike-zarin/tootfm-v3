@@ -1,15 +1,12 @@
 'use client'
-
 import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-
 function ErrorContent() {
   const searchParams = useSearchParams()
   const error = searchParams.get('error')
-  
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
@@ -31,7 +28,6 @@ function ErrorContent() {
     </Card>
   )
 }
-
 export default function AuthErrorPage() {
   return (
     <div className="flex min-h-screen items-center justify-center">

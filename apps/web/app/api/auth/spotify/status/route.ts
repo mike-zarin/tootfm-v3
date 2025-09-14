@@ -2,29 +2,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { storage } from '@/lib/storage';
-
 export async function GET(request: NextRequest) {
   try {
     // Получаем сессию пользователя
     const session = await getServerSession();
-    
     if (!session?.user?.email) {
       return NextResponse.json(
         { connected: false, message: 'Not authenticated' },
         { status: 401 }
       );
     }
-
     // Получаем данные пользователя из storage
-    const user = storage.getUserByEmail(session.user.email);
-    
+    const user = await storage.getUserByEmail(session.user.email);
     if (!user) {
       return NextResponse.json(
         { connected: false, message: 'User not found' },
         { status: 404 }
       );
     }
-
     // Проверяем наличие Spotify профиля
     if (!user.spotifyProfile) {
       return NextResponse.json({
@@ -32,12 +27,10 @@ export async function GET(request: NextRequest) {
         message: 'Spotify not connected'
       });
     }
-
     // Проверяем валидность токена
     const now = new Date();
     const expiresAt = new Date(user.spotifyProfile.expiresAt);
     const isExpired = now >= expiresAt;
-
     // Если токен истёк, пробуем обновить
     if (isExpired && user.spotifyProfile.refreshToken) {
       try {
@@ -54,19 +47,15 @@ export async function GET(request: NextRequest) {
             refresh_token: user.spotifyProfile.refreshToken
           })
         });
-
         if (response.ok) {
           const tokens = await response.json();
-          
           // Обновляем токены в storage
           const updatedProfile = {
             ...user.spotifyProfile,
             accessToken: tokens.access_token,
             expiresAt: new Date(Date.now() + tokens.expires_in * 1000).toISOString()
           };
-          
-          storage.updateUser(user.id, { spotifyProfile: updatedProfile });
-          
+          await storage.updateUser(user.id, { spotifyProfile: updatedProfile });
           return NextResponse.json({
             connected: true,
             profile: {
@@ -76,14 +65,26 @@ export async function GET(request: NextRequest) {
               product: updatedProfile.product
             },
             tokenValid: true,
-            expiresAt: updatedProfile.expiresAt
+            expiresAt: updatedProfile.expiresAt,
+            refreshed: true
+          });
+        } else {
+          // Если не удалось обновить токен, возвращаем ошибку
+          return NextResponse.json({
+            connected: false,
+            message: 'Spotify token expired and could not be refreshed',
+            tokenValid: false
           });
         }
       } catch (error) {
-        console.error('Error refreshing Spotify token:', error);
+        console.error('[ERROR]' + ' ' + 'Error refreshing Spotify token:', error);
+        return NextResponse.json({
+          connected: false,
+          message: 'Failed to refresh Spotify token',
+          tokenValid: false
+        });
       }
     }
-
     // Возвращаем статус
     return NextResponse.json({
       connected: true,
@@ -96,9 +97,8 @@ export async function GET(request: NextRequest) {
       tokenValid: !isExpired,
       expiresAt: user.spotifyProfile.expiresAt
     });
-
   } catch (error) {
-    console.error('Error checking Spotify status:', error);
+    console.error('[ERROR]' + ' ' + 'Error checking Spotify status:', error);
     return NextResponse.json(
       { connected: false, error: 'Internal server error' },
       { status: 500 }

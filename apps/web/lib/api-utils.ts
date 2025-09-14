@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-
 export class ApiError extends Error {
   constructor(
     public message: string,
@@ -8,37 +7,31 @@ export class ApiError extends Error {
     super(message);
   }
 }
-
 export function handleApiError(error: unknown) {
-  // console.error('API Error:', error);
-  
+  // console.error('[ERROR]' + ' ' + 'API Error:', error);
   if (error instanceof ApiError) {
     return NextResponse.json(
       { error: error.message },
       { status: error.status }
     );
   }
-  
   if (error instanceof Error) {
     return NextResponse.json(
       { error: error.message },
       { status: 500 }
     );
   }
-  
   return NextResponse.json(
     { error: 'An unexpected error occurred' },
     { status: 500 }
   );
 }
-
 export function requireAuth(session: any) {
   if (!session?.user?.id) {
     throw new ApiError('Unauthorized', 401);
   }
   return session.user;
 }
-
 export function generatePartyCode(): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let code = '';

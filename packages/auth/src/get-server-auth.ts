@@ -26,7 +26,7 @@ export async function requireHost(partyId: string) {
     select: { hostId: true }
   });
   
-  if (!party || party.hostId !== session.user.id) {
+  if (!party || party.hostId !== (session.user as any).id) {
     redirect("/");
   }
   

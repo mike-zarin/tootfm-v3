@@ -3,7 +3,6 @@ import { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 // SpotifyProvider удален - используем кастомный callback
 import { storage } from '@/lib/storage';
-
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
@@ -12,7 +11,6 @@ export const authOptions: NextAuthOptions = {
     }),
     // SpotifyProvider удален - конфликтовал с кастомным callback
   ],
-  
   callbacks: {
     async jwt({ token, user, account }) {
       if (user) {
@@ -21,14 +19,11 @@ export const authOptions: NextAuthOptions = {
         token.name = user.name;
         token.image = user.image;
       }
-      
       if (account?.provider === 'google') {
         token.id = account.providerAccountId;
       }
-      
       return token;
     },
-    
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
@@ -36,11 +31,9 @@ export const authOptions: NextAuthOptions = {
         session.user.name = token.name as string;
         session.user.image = token.image as string;
       }
-      
       // Create or update user in storage
       if (session.user?.email) {
         const existingUser = await storage.getUserByEmail(session.user.email);
-        
         if (!existingUser) {
           await storage.createUser({
             id: session.user.id,
@@ -60,21 +53,17 @@ export const authOptions: NextAuthOptions = {
           });
         }
       }
-      
       return session;
     },
   },
-  
   pages: {
     signIn: '/auth/signin',
     error: '/auth/error',
   },
-  
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === 'development',
 };

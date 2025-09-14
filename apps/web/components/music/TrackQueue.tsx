@@ -1,8 +1,5 @@
 "use client"
-
 // apps/web/components/music/TrackQueue.tsx
-
-
 import { useState, useEffect } from 'react';
 import { Music, ThumbsUp, ThumbsDown, Trash2, User } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -11,28 +8,23 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
 import { Track } from '@/types';
 import Image from 'next/image';
-
 interface TrackQueueProps {
   partyId: string;
   isHost: boolean;
   currentUserId: string;
 }
-
 interface TrackWithVotes extends Track {
   votes: number;
   userVote?: 'up' | 'down';
 }
-
 export function TrackQueue({ partyId, isHost, currentUserId }: TrackQueueProps) {
   const [tracks, setTracks] = useState<TrackWithVotes[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-
   const fetchTracks = async () => {
     try {
       const response = await fetch(`/api/parties/${partyId}/tracks`);
       if (!response.ok) throw new Error('Failed to fetch tracks');
-      
       const data = await response.json();
       setTracks(data.tracks || []);
     } catch (_error) {
@@ -45,14 +37,12 @@ export function TrackQueue({ partyId, isHost, currentUserId }: TrackQueueProps) 
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchTracks();
     // Refresh every 5 seconds
     const interval = setInterval(fetchTracks, 5000);
     return () => clearInterval(interval);
   }, [partyId]);
-
   const handleVote = async (trackId: string, type: 'up' | 'down') => {
     try {
       const response = await fetch(`/api/parties/${partyId}/tracks/${trackId}/vote`, {
@@ -60,9 +50,7 @@ export function TrackQueue({ partyId, isHost, currentUserId }: TrackQueueProps) 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type })
       });
-
       if (!response.ok) throw new Error('Vote failed');
-      
       // Refresh tracks
       fetchTracks();
     } catch (_error) {
@@ -73,22 +61,17 @@ export function TrackQueue({ partyId, isHost, currentUserId }: TrackQueueProps) 
       });
     }
   };
-
   const handleDelete = async (trackId: string) => {
     if (!confirm('Are you sure you want to remove this track?')) return;
-
     try {
       const response = await fetch(`/api/parties/${partyId}/tracks/${trackId}`, {
         method: 'DELETE'
       });
-
       if (!response.ok) throw new Error('Delete failed');
-      
       toast({
         title: 'Track removed',
         description: 'The track has been removed from the queue.'
       });
-      
       // Refresh tracks
       fetchTracks();
     } catch (_error) {
@@ -99,14 +82,12 @@ export function TrackQueue({ partyId, isHost, currentUserId }: TrackQueueProps) 
       });
     }
   };
-
   const formatDuration = (ms?: number) => {
     if (!ms) return '--:--';
     const minutes = Math.floor(ms / 60000);
     const seconds = Math.floor((ms % 60000) / 1000);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
-
   if (loading) {
     return (
       <div className="text-center py-8">
@@ -114,7 +95,6 @@ export function TrackQueue({ partyId, isHost, currentUserId }: TrackQueueProps) 
       </div>
     );
   }
-
   if (tracks.length === 0) {
     return (
       <Card className="p-8 text-center">
@@ -126,7 +106,6 @@ export function TrackQueue({ partyId, isHost, currentUserId }: TrackQueueProps) 
       </Card>
     );
   }
-
   return (
     <div className="space-y-2">
       {tracks.map((track, index) => (
@@ -136,7 +115,6 @@ export function TrackQueue({ partyId, isHost, currentUserId }: TrackQueueProps) 
             <div className="text-2xl font-bold text-gray-400 w-8 text-center">
               {index + 1}
             </div>
-
             {/* Album Art */}
             <div className="relative w-16 h-16 flex-shrink-0">
               {track.imageUrl ? (
@@ -144,6 +122,7 @@ export function TrackQueue({ partyId, isHost, currentUserId }: TrackQueueProps) 
                   src={track.imageUrl}
                   alt={track.album || 'Album art'}
                   fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-cover rounded"
                 />
               ) : (
@@ -152,10 +131,16 @@ export function TrackQueue({ partyId, isHost, currentUserId }: TrackQueueProps) 
                 </div>
               )}
             </div>
-
             {/* Track Info */}
             <div className="flex-1 min-w-0">
-              <p className="font-medium truncate">{track.title}</p>
+              <div className="flex items-center gap-2">
+                <p className="font-medium truncate">{track.title}</p>
+                {track.isGenerated && (
+                  <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
+                    ✨ Smart
+                  </span>
+                )}
+              </div>
               <p className="text-sm text-gray-500 truncate">
                 {track.artist} {track.album && `• ${track.album}`}
               </p>
@@ -171,14 +156,12 @@ export function TrackQueue({ partyId, isHost, currentUserId }: TrackQueueProps) 
                 )}
               </div>
             </div>
-
             {/* Vote Count */}
             <div className="text-center">
               <Badge variant={track.votes > 0 ? 'default' : 'secondary'}>
                 {track.votes > 0 && '+'}{track.votes}
               </Badge>
             </div>
-
             {/* Vote Buttons */}
             <div className="flex gap-1">
               <Button
@@ -196,7 +179,6 @@ export function TrackQueue({ partyId, isHost, currentUserId }: TrackQueueProps) 
                 <ThumbsDown className="w-4 h-4" />
               </Button>
             </div>
-
             {/* Delete Button (Host Only) */}
             {isHost && (
               <Button

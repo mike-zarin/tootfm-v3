@@ -1,0 +1,20 @@
+--- a/apps/web/lib/spotify.ts
++++ b/apps/web/lib/spotify.ts
+@@ -18,6 +18,8 @@ export const SPOTIFY_SCOPES = [
+   'user-read-playback-state',
+   'user-modify-playback-state',
+   'user-read-currently-playing',
++  // КРИТИЧЕСКИ ВАЖНО для audio-features - без этого 403 ошибка!
++  'user-read-audio-features',  // Добавлено для исправления
+ ];
+
+--- a/apps/web/app/api/auth/spotify/callback/route.ts
++++ b/apps/web/app/api/auth/spotify/callback/route.ts
+   // При сохранении профиля добавляем scope
+   spotifyProfile: {
+     ...profileData,
++    scope: tokenData.scope,  // Сохраняем какие права получили
+     accessToken: tokenData.access_token,
+     refreshToken: tokenData.refresh_token,
+     expiresAt: new Date(Date.now() + tokenData.expires_in * 1000).toISOString()
+   }

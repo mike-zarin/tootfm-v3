@@ -1,6 +1,5 @@
 "use client"
 import { CreatePartyForm } from '@/components/party/CreatePartyForm';
-
 export default function CreatePartyPage() {
   return (
     <div className="min-h-screen bg-black py-16">

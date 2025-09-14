@@ -1,8 +1,6 @@
 // lib/converters/spotify-converter.ts
-
 import { UnifiedTrack, UnifiedArtist, AudioFeatures } from '@/types/music';
 import { SpotifyTrack } from '@/types';
-
 export function convertSpotifyTrack(track: SpotifyTrack): UnifiedTrack {
   // Безопасное извлечение изображений
   const images = track.album?.images || [];
@@ -11,7 +9,6 @@ export function convertSpotifyTrack(track: SpotifyTrack): UnifiedTrack {
     medium: images[1]?.url || images[0]?.url,
     small: images[2]?.url || images[1]?.url || images[0]?.url,
   };
-
   return {
     id: `spotify_${track.id}`,
     isrc: track.isrc,
@@ -20,21 +17,17 @@ export function convertSpotifyTrack(track: SpotifyTrack): UnifiedTrack {
     album: track.album?.name,
     // Убираем поля которых нет в типе SpotifyTrack
     duration: track.duration_ms || 0,
-    
     // Spotify специфичные поля
     spotifyId: track.id,
     spotifyUri: track.uri,
     popularity: track.popularity,
     previewUrl: track.preview_url || undefined,
-    
     // Обложки с fallback
     artwork: artwork.large ? artwork : undefined,
-    
     // Жанры будем получать из артиста
     genres: undefined,
   };
 }
-
 export function convertSpotifyArtist(artist: any): UnifiedArtist {
   const images = artist.images || [];
   const artistImages = {
@@ -42,7 +35,6 @@ export function convertSpotifyArtist(artist: any): UnifiedArtist {
     medium: images[1]?.url || images[0]?.url,
     small: images[2]?.url || images[1]?.url || images[0]?.url,
   };
-
   return {
     id: `spotify_${artist.id}`,
     name: artist.name || 'Unknown Artist',
@@ -53,7 +45,6 @@ export function convertSpotifyArtist(artist: any): UnifiedArtist {
     images: artistImages.large ? artistImages : undefined,
   };
 }
-
 export function convertSpotifyAudioFeatures(features: any): AudioFeatures {
   return {
     trackId: features.id,
@@ -71,7 +62,6 @@ export function convertSpotifyAudioFeatures(features: any): AudioFeatures {
     timeSignature: features.time_signature || 4,
   };
 }
-
 // Конвертер для полного трека из Spotify Web API (не из нашего типа)
 export function convertSpotifyApiTrack(track: any): UnifiedTrack {
   const images = track.album?.images || [];
@@ -80,7 +70,6 @@ export function convertSpotifyApiTrack(track: any): UnifiedTrack {
     medium: images[1]?.url || images[0]?.url,
     small: images[2]?.url || images[1]?.url || images[0]?.url,
   };
-
   return {
     id: `spotify_${track.id}`,
     isrc: track.external_ids?.isrc,
@@ -90,12 +79,10 @@ export function convertSpotifyApiTrack(track: any): UnifiedTrack {
     albumArtist: track.album?.artists?.[0]?.name,
     duration: track.duration_ms || 0,
     releaseDate: track.album?.release_date,
-    
     spotifyId: track.id,
     spotifyUri: track.uri,
     popularity: track.popularity,
     previewUrl: track.preview_url || undefined,
-    
     artwork: artwork.large ? artwork : undefined,
   };
 }

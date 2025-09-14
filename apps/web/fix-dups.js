@@ -1,10 +1,8 @@
 const fs = require('fs');
 const data = JSON.parse(fs.readFileSync('data.json', 'utf8'));
 fs.writeFileSync('data.backup.' + Date.now() + '.json', JSON.stringify(data, null, 2));
-
 const unique = [];
 const seen = new Set();
-
 data.memberships.forEach(m => {
   const key = m.userId + '-' + m.partyId;
   if (!seen.has(key)) {
@@ -12,11 +10,6 @@ data.memberships.forEach(m => {
     unique.push(m);
   }
 });
-
-console.log('Was: ' + data.memberships.length + ' memberships');
-console.log('Now: ' + unique.length + ' memberships');
 console.log('Removed: ' + (data.memberships.length - unique.length) + ' duplicates');
-
 data.memberships = unique;
 fs.writeFileSync('data.json', JSON.stringify(data, null, 2));
-console.log('Fixed!');

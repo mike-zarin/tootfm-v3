@@ -3,14 +3,14 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { Providers } from "./providers"
-
 const inter = Inter({ subsets: ["latin"] })
-
 export const metadata: Metadata = {
   title: "tootFM - Democratic DJ for Parties",
   description: "Let everyone control the music at your party",
+  other: {
+    'charset': 'utf-8'
+  }
 }
-
 export default function RootLayout({
   children,
 }: {
@@ -18,6 +18,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+      </head>
       <body className={inter.className}>
         <Providers>
           {children}

@@ -30,7 +30,11 @@ async function refreshSpotifyToken(token: any) {
       }),
     });
 
-    const refreshed = await response.json();
+    const refreshed = await response.json() as {
+      access_token: string;
+      expires_in: number;
+      refresh_token?: string;
+    };
 
     if (!response.ok) throw refreshed;
 
@@ -99,7 +103,7 @@ export const authConfig: NextAuthOptions = {
     async session({ session, token }) {
       // Обновляем данные пользователя в сессии
       if (session.user) {
-        session.user.id = token.id as string || token.sub as string;
+        (session.user as any).id = token.id as string || token.sub as string;
         session.user.email = token.email as string;
         session.user.name = token.name as string || session.user.name;
         session.user.image = token.picture as string || session.user.image;

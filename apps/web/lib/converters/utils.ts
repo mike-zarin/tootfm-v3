@@ -1,5 +1,4 @@
 // lib/converters/utils.ts
-
 // Нормализация жанров между сервисами
 export function normalizeGenre(genre: string): string {
   const genreMap: Record<string, string> = {
@@ -16,11 +15,9 @@ export function normalizeGenre(genre: string): string {
     'electronic': 'electronic',
     'electronica': 'electronic',
   };
-  
   const normalized = genre.toLowerCase().trim();
   return genreMap[normalized] || normalized;
 }
-
 // Безопасное извлечение ISRC
 export function extractISRC(track: any): string | undefined {
   // Spotify
@@ -32,10 +29,8 @@ export function extractISRC(track: any): string | undefined {
   }
   // Прямое поле
   if (track.isrc) return track.isrc;
-  
   return undefined;
 }
-
 // Генерация уникального ID
 export function generateTrackId(service: string, id?: string, fallback?: string): string {
   if (id) return `${service}_${id}`;

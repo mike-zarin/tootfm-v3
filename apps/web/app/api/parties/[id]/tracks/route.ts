@@ -1,5 +1,4 @@
 // app/api/parties/[id]/tracks/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
@@ -13,7 +12,6 @@ import {
 } from '@/lib/storage';
 import { AddTrackRequest } from '@/types';
 import { z } from 'zod';
-
 const addTrackSchema = z.object({
   spotifyId: z.string(),
   title: z.string(),
@@ -23,21 +21,18 @@ const addTrackSchema = z.object({
   imageUrl: z.string().optional(),
   previewUrl: z.string().optional()
 });
-
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
-
     const party = await findPartyById(params.id);
     if (!party) {
       return NextResponse.json(
@@ -45,33 +40,28 @@ export async function GET(
         { status: 404 }
       );
     }
-
     const tracks = await getTracks(party.id);
-    return NextResponse.json(tracks);
-
+    return NextResponse.json({ tracks });
   } catch (_error) {
-    // console.error('Get tracks error:', error);
+    // console.error('[ERROR]' + ' ' + 'Get tracks error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch tracks' },
       { status: 500 }
     );
   }
 }
-
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
-
     const party = await findPartyById(params.id);
     if (!party) {
       return NextResponse.json(
@@ -79,37 +69,32 @@ export async function POST(
         { status: 404 }
       );
     }
-
     const members = await getPartyMembers(party.id);
     const isMember = members.some(m => m.userId === session.user.id);
-    
     if (!isMember && party.hostId !== session.user.id) {
       return NextResponse.json(
         { error: 'You must be a member to add tracks' },
         { status: 403 }
       );
     }
-
     const body: AddTrackRequest = await request.json();
     const data = addTrackSchema.parse(body);
-
     const existingTracks = await getTracks(party.id);
-    const exists = existingTracks.some(t => t.spotifyId === data.spotifyId);
-    
-    if (exists) {
-      return NextResponse.json(
-        { error: 'Track already in queue' },
-        { status: 409 }
-      );
+    const existingTrack = existingTracks.find(t => t.spotifyId === data.spotifyId);
+    if (existingTrack) {
+      // Вместо ошибки, возвращаем успех без дублирования
+      return NextResponse.json({ 
+        success: true, 
+        track: existingTrack,
+        message: "Track already in queue" 
+      });
     }
-
     if (party.settings.maxTracks && existingTracks.length >= party.settings.maxTracks) {
       return NextResponse.json(
         { error: `Party has reached maximum of ${party.settings.maxTracks} tracks` },
         { status: 400 }
       );
     }
-
     const track = await createTrack({
       id: `track_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       partyId: party.id,
@@ -125,9 +110,7 @@ export async function POST(
       addedByName: session.user.name || session.user.email,
       createdAt: new Date().toISOString()
     });
-
     return NextResponse.json(track, { status: 201 });
-
   } catch (_error) {
     if (_error instanceof z.ZodError) {
       return NextResponse.json(
@@ -135,8 +118,7 @@ export async function POST(
         { status: 400 }
       );
     }
-
-    // console.error('Add track error:', error);
+    // console.error('[ERROR]' + ' ' + 'Add track error:', error);
     return NextResponse.json(
       { error: 'Failed to add track' },
       { status: 500 }

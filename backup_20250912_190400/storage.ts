@@ -5,6 +5,47 @@ import path from 'path';
 import { User, Party, Track, Membership, Vote, MusicProfile } from '@/types';
 import type { SpotifyProfile } from "@/types";
 
+// New interfaces for Apple Music and Music Portraits
+export interface AppleMusicProfile {
+  userId: string;
+  musicUserToken: string;
+  connectedAt: string;
+  expiresAt: string;
+}
+
+export interface MusicPortraitData {
+  userId: string;
+  portrait: {
+    topTracks: any[];
+    topArtists: any[];
+    topGenres: string[];
+    audioFeatures: {
+      danceability: number;
+      energy: number;
+      valence: number;
+      tempo: number;
+      acousticness: number;
+      instrumentalness: number;
+    };
+    energyCurve: number[];
+    stats: {
+      totalTracks: number;
+      totalArtists: number;
+      averagePopularity: number;
+      dominantDecade: string;
+      musicDiversity: number;
+      partyReadiness: number;
+    };
+    sources: {
+      spotify?: boolean;
+      apple?: boolean;
+      lastfm?: boolean;
+    };
+    generatedAt: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
 
 interface StorageData {
   users: User[];
@@ -13,7 +54,9 @@ interface StorageData {
   memberships: Membership[];
   votes?: Vote[];
   spotifyProfiles?: SpotifyProfile[];
+  appleMusicProfiles?: AppleMusicProfile[];
   musicProfiles?: MusicProfile[];
+  musicPortraits?: MusicPortraitData[];
 }
 
 class Storage {
@@ -28,20 +71,24 @@ class Storage {
       const data = await fs.readFile(this.filePath, 'utf-8');
       const parsed = JSON.parse(data);
       
-      // Добавляем votes и musicProfiles если их нет
+      // Initialize arrays if they don't exist
       if (!parsed.votes) parsed.votes = [];
       if (!parsed.musicProfiles) parsed.musicProfiles = [];
+      if (!parsed.appleMusicProfiles) parsed.appleMusicProfiles = [];
+      if (!parsed.musicPortraits) parsed.musicPortraits = [];
       
       return parsed;
     } catch (_error) {
-      // console.log('Creating new data.json file at:', this.filePath);
       const emptyData: StorageData = {
         users: [],
         parties: [],
         tracks: [],
         memberships: [],
         votes: [],
-        musicProfiles: []
+        spotifyProfiles: [],
+        appleMusicProfiles: [],
+        musicProfiles: [],
+        musicPortraits: []
       };
       await this.write(emptyData);
       return emptyData;
@@ -52,7 +99,6 @@ class Storage {
     try {
       await fs.writeFile(this.filePath, JSON.stringify(data, null, 2));
     } catch (_error) {
-      // console.error('Error writing to storage:', error);
       throw _error;
     }
   }
@@ -113,7 +159,7 @@ class Storage {
     if (!data.parties) data.parties = [];
     data.parties.push(party);
     
-    // Автоматически создаем membership для хоста
+    // Auto-create membership for host
     if (!data.memberships) data.memberships = [];
     data.memberships.push({
       id: `membership_${Date.now()}`,
@@ -211,7 +257,7 @@ class Storage {
     return data.votes?.filter(v => v.trackId === trackId) || [];
   }
 
-  // MusicProfile methods
+  // MusicProfile methods (legacy)
   async getMusicProfile(userId: string, service: string): Promise<MusicProfile | undefined> {
     const data = await this.read();
     return data.musicProfiles?.find(p => p.userId === userId && p.service === service);
@@ -221,7 +267,7 @@ class Storage {
     const data = await this.read();
     if (!data.musicProfiles) data.musicProfiles = [];
     
-    // Удаляем старый профиль если есть
+    // Remove old profile if exists
     data.musicProfiles = data.musicProfiles.filter(
       p => !(p.userId === profile.userId && p.service === profile.service)
     );
@@ -231,18 +277,50 @@ class Storage {
     return profile;
   }
 
+  // NEW: Music Portrait methods (full portrait data)
+  async saveMusicPortrait(userId: string, portrait: any): Promise<void> {
+    const data = await this.read();
+    if (!data.musicPortraits) data.musicPortraits = [];
+    
+    const index = data.musicPortraits.findIndex(p => p.userId === userId);
+    const now = new Date().toISOString();
+    
+    const portraitData: MusicPortraitData = {
+      userId,
+      portrait,
+      createdAt: index >= 0 ? data.musicPortraits[index].createdAt : now,
+      updatedAt: now
+    };
+    
+    if (index >= 0) {
+      data.musicPortraits[index] = portraitData;
+    } else {
+      data.musicPortraits.push(portraitData);
+    }
+    
+    await this.write(data);
+  }
+
+  async getMusicPortrait(userId: string): Promise<any | null> {
+    const data = await this.read();
+    const portrait = data.musicPortraits?.find(p => p.userId === userId);
+    return portrait?.portrait || null;
+  }
+
+  async getAllMusicPortraits(): Promise<MusicPortraitData[]> {
+    const data = await this.read();
+    return data.musicPortraits || [];
+  }
+
   // Helper methods
   async getUserParties(emailOrId: string): Promise<{ hosted: Party[], joined: Party[] }> {
     const data = await this.read();
     
-    // Находим пользователя
     const user = data.users?.find(u => u.id === emailOrId || u.email === emailOrId);
     const userId = user?.id || emailOrId;
     
-    // Находим все membership пользователя
     const memberships = data.memberships?.filter(m => m.userId === userId) || [];
     
-    // Разделяем на hosted и joined
     const hosted: Party[] = [];
     const joined: Party[] = [];
     
@@ -270,7 +348,7 @@ class Storage {
     return data.tracks?.filter(t => t.partyId === partyId).length || 0;
   }
 
-  // NEW: Недостающие методы для API
+  // API compatibility methods
   async findPartyById(id: string): Promise<Party | undefined> {
     return this.getParty(id);
   }
@@ -314,7 +392,6 @@ class Storage {
     return code;
   }
 
-  // Для обратной совместимости с API
   async readData(): Promise<StorageData> {
     return this.read();
   }
@@ -345,8 +422,8 @@ class Storage {
     if (profile) {
       profile.accessToken = accessToken;
       profile.refreshToken = refreshToken;
-      profile.expiresAt = new Date(Date.now() + expiresIn * 1000);
-      profile.updatedAt = new Date();
+      profile.expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString();
+      profile.updatedAt = new Date().toISOString();
       await this.saveSpotifyProfile(profile);
     }
   }
@@ -358,12 +435,57 @@ class Storage {
       await this.write(data);
     }
   }
+
+  // NEW: Apple Music Integration Methods
+  async getAppleMusicProfile(userId: string): Promise<AppleMusicProfile | null> {
+    const data = await this.read();
+    return data.appleMusicProfiles?.find(p => p.userId === userId) || null;
+  }
+
+  async saveAppleMusicProfile(profile: AppleMusicProfile): Promise<AppleMusicProfile> {
+    const data = await this.read();
+    if (!data.appleMusicProfiles) data.appleMusicProfiles = [];
+    
+    const existingIndex = data.appleMusicProfiles.findIndex(p => p.userId === profile.userId);
+    if (existingIndex >= 0) {
+      data.appleMusicProfiles[existingIndex] = profile;
+    } else {
+      data.appleMusicProfiles.push(profile);
+    }
+    
+    await this.write(data);
+    return profile;
+  }
+
+  async removeAppleMusicProfile(userId: string): Promise<void> {
+    const data = await this.read();
+    if (data.appleMusicProfiles) {
+      data.appleMusicProfiles = data.appleMusicProfiles.filter(p => p.userId !== userId);
+      await this.write(data);
+    }
+  }
+
+  // Check if user has any music service connected
+  async getUserMusicServices(userId: string): Promise<{
+    spotify: boolean;
+    apple: boolean;
+    hasAny: boolean;
+  }> {
+    const spotifyProfile = await this.getSpotifyProfile(userId);
+    const appleProfile = await this.getAppleMusicProfile(userId);
+    
+    return {
+      spotify: !!spotifyProfile,
+      apple: !!appleProfile,
+      hasAny: !!spotifyProfile || !!appleProfile
+    };
+  }
 }
 
-// Создаем единственный экземпляр
+// Create singleton instance
 export const storage = new Storage();
 
-// Экспортируем все методы для обратной совместимости
+// Export all methods for backwards compatibility
 export const getUsers = storage.getUsers.bind(storage);
 export const getUser = storage.getUser.bind(storage);
 export const getUserByEmail = storage.getUserByEmail.bind(storage);
@@ -395,7 +517,6 @@ export const getUserParties = storage.getUserParties.bind(storage);
 export const getPartyMemberCount = storage.getPartyMemberCount.bind(storage);
 export const getPartyTrackCount = storage.getPartyTrackCount.bind(storage);
 
-// NEW: Экспорты для API
 export const findPartyById = storage.findPartyById.bind(storage);
 export const findPartyByCode = storage.findPartyByCode.bind(storage);
 export const getPartyMembers = storage.getPartyMembers.bind(storage);
@@ -403,3 +524,21 @@ export const joinParty = storage.joinParty.bind(storage);
 export const generateUniquePartyCode = storage.generateUniquePartyCode.bind(storage);
 export const readData = storage.readData.bind(storage);
 
+// Spotify exports
+export const getSpotifyProfile = storage.getSpotifyProfile.bind(storage);
+export const saveSpotifyProfile = storage.saveSpotifyProfile.bind(storage);
+export const updateSpotifyTokens = storage.updateSpotifyTokens.bind(storage);
+export const removeSpotifyProfile = storage.removeSpotifyProfile.bind(storage);
+
+// NEW: Apple Music exports
+export const getAppleMusicProfile = storage.getAppleMusicProfile.bind(storage);
+export const saveAppleMusicProfile = storage.saveAppleMusicProfile.bind(storage);
+export const removeAppleMusicProfile = storage.removeAppleMusicProfile.bind(storage);
+
+// NEW: Music Portrait exports
+export const saveMusicPortrait = storage.saveMusicPortrait.bind(storage);
+export const getMusicPortrait = storage.getMusicPortrait.bind(storage);
+export const getAllMusicPortraits = storage.getAllMusicPortraits.bind(storage);
+
+// NEW: Helper export
+export const getUserMusicServices = storage.getUserMusicServices.bind(storage);

@@ -1,6 +1,5 @@
 // lib/apple-music-api.ts
 import { storage } from './storage';
-
 interface AppleMusicTrack {
   id: string;
   attributes: {
@@ -20,7 +19,6 @@ interface AppleMusicTrack {
     }>;
   };
 }
-
 interface AppleMusicArtist {
   id: string;
   attributes: {
@@ -31,7 +29,6 @@ interface AppleMusicArtist {
     };
   };
 }
-
 interface AppleMusicPortrait {
   topTracks: Array<{
     id: string;
@@ -52,24 +49,19 @@ interface AppleMusicPortrait {
     track: AppleMusicTrack;
   }>;
 }
-
 export class AppleMusicAPI {
   private developerToken: string;
   private musicUserToken: string | null = null;
-
   constructor(developerToken: string) {
     this.developerToken = developerToken;
   }
-
   setMusicUserToken(token: string) {
     this.musicUserToken = token;
   }
-
   private async makeRequest(endpoint: string, options: RequestInit = {}) {
     if (!this.musicUserToken) {
       throw new Error('Music User Token not set');
     }
-
     const response = await fetch(`https://api.music.apple.com${endpoint}`, {
       ...options,
       headers: {
@@ -79,16 +71,13 @@ export class AppleMusicAPI {
         ...options.headers
       }
     });
-
     if (!response.ok) {
       const error = await response.text();
-      console.error(`Apple Music API error: ${response.status}`, error);
+      console.error('[ERROR]' + ' ' + `Apple Music API error: ${response.status}`, error);
       throw new Error(`Apple Music API error: ${response.status}`);
     }
-
     return response.json();
   }
-
   // Получить Heavy Rotation (частые прослушивания)
   async getHeavyRotation(limit: number = 20) {
     try {
@@ -97,11 +86,10 @@ export class AppleMusicAPI {
       );
       return data.data || [];
     } catch (error) {
-      console.error('Failed to fetch heavy rotation:', error);
+      console.error('[ERROR]' + ' ' + 'Failed to fetch heavy rotation:', error);
       return [];
     }
   }
-
   // Получить недавно проигранные треки
   async getRecentlyPlayed(limit: number = 30) {
     try {
@@ -110,11 +98,10 @@ export class AppleMusicAPI {
       );
       return data.data || [];
     } catch (error) {
-      console.error('Failed to fetch recently played:', error);
+      console.error('[ERROR]' + ' ' + 'Failed to fetch recently played:', error);
       return [];
     }
   }
-
   // Получить рекомендации на основе истории
   async getRecommendations() {
     try {
@@ -123,11 +110,10 @@ export class AppleMusicAPI {
       );
       return data.data || [];
     } catch (error) {
-      console.error('Failed to fetch recommendations:', error);
+      console.error('[ERROR]' + ' ' + 'Failed to fetch recommendations:', error);
       return [];
     }
   }
-
   // Получить библиотеку пользователя
   async getLibrarySongs(limit: number = 100) {
     try {
@@ -136,11 +122,10 @@ export class AppleMusicAPI {
       );
       return data.data || [];
     } catch (error) {
-      console.error('Failed to fetch library songs:', error);
+      console.error('[ERROR]' + ' ' + 'Failed to fetch library songs:', error);
       return [];
     }
   }
-
   // Получить плейлисты пользователя
   async getLibraryPlaylists(limit: number = 25) {
     try {
@@ -149,11 +134,10 @@ export class AppleMusicAPI {
       );
       return data.data || [];
     } catch (error) {
-      console.error('Failed to fetch library playlists:', error);
+      console.error('[ERROR]' + ' ' + 'Failed to fetch library playlists:', error);
       return [];
     }
   }
-
   // Поиск треков для сопоставления ISRC
   async searchTrackByISRC(isrc: string) {
     try {
@@ -162,11 +146,10 @@ export class AppleMusicAPI {
       );
       return data.data?.[0] || null;
     } catch (error) {
-      console.error(`Failed to search track by ISRC ${isrc}:`, error);
+      console.error('[ERROR]' + ' ' + `Failed to search track by ISRC ${isrc}:`, error);
       return null;
     }
   }
-
   // Генерация музыкального портрета
   async generateMusicPortrait(): Promise<AppleMusicPortrait> {
     const [heavyRotation, recentlyPlayed, librarySongs] = await Promise.all([
@@ -174,10 +157,8 @@ export class AppleMusicAPI {
       this.getRecentlyPlayed(50),
       this.getLibrarySongs(100)
     ]);
-
     // Объединяем все треки
     const allTracks = [...heavyRotation, ...recentlyPlayed, ...librarySongs];
-    
     // Подсчитываем частоту треков
     const trackFrequency = new Map<string, { count: number; track: AppleMusicTrack }>();
     allTracks.forEach((item: any) => {
@@ -190,11 +171,9 @@ export class AppleMusicAPI {
         });
       }
     });
-
     // Сортируем по популярности
     const sortedTracks = Array.from(trackFrequency.values())
       .sort((a, b) => b.count - a.count);
-
     // Собираем жанры
     const genreMap = new Map<string, number>();
     sortedTracks.forEach(({ track }) => {
@@ -202,12 +181,10 @@ export class AppleMusicAPI {
         genreMap.set(genre, (genreMap.get(genre) || 0) + 1);
       });
     });
-
     const topGenres = Array.from(genreMap.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 15)
       .map(([genre]) => genre);
-
     // Собираем артистов
     const artistMap = new Map<string, { count: number; genres: Set<string> }>();
     sortedTracks.forEach(({ track }) => {
@@ -216,14 +193,12 @@ export class AppleMusicAPI {
         const existing = artistMap.get(artistName);
         const genres = new Set(existing?.genres || []);
         track.attributes?.genreNames?.forEach((g: string) => genres.add(g));
-        
         artistMap.set(artistName, {
           count: (existing?.count || 0) + 1,
           genres
         });
       }
     });
-
     const topArtists = Array.from(artistMap.entries())
       .sort((a, b) => b[1].count - a[1].count)
       .slice(0, 20)
@@ -233,7 +208,6 @@ export class AppleMusicAPI {
         imageUrl: null, // Apple Music API не всегда возвращает изображения артистов
         genres: Array.from(data.genres)
       }));
-
     // Форматируем топ треки
     const topTracks = sortedTracks.slice(0, 30).map(({ track }) => ({
       id: track.id,
@@ -244,7 +218,6 @@ export class AppleMusicAPI {
         ?.replace('{h}', '300') || null,
       isrc: track.attributes?.isrc
     }));
-
     return {
       topTracks,
       topArtists,
@@ -256,17 +229,13 @@ export class AppleMusicAPI {
     };
   }
 }
-
 // Хелпер для получения портрета Apple Music пользователя
 export async function getAppleMusicPortrait(userId: string, developerToken: string) {
-  const user = storage.getUser(userId);
-  
+  const user = await storage.getUserById(userId);
   if (!user?.appleMusicProfile?.musicUserToken) {
     throw new Error('Apple Music not connected');
   }
-
   const api = new AppleMusicAPI(developerToken);
   api.setMusicUserToken(user.appleMusicProfile.musicUserToken);
-  
   return api.generateMusicPortrait();
 }

@@ -1,5 +1,4 @@
 'use client';
-
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,6 @@ import { Card } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import Image from 'next/image';
 import { Search, Plus, Music2 } from 'lucide-react';
-
 interface SpotifyTrack {
   id: string;
   name: string;
@@ -19,22 +17,19 @@ interface SpotifyTrack {
   duration_ms: number;
   uri: string;
 }
-
 interface TrackSearchProps {
   partyId: string;
   onTrackAdded?: () => void;
 }
-
 export default function TrackSearch({ partyId, onTrackAdded }: TrackSearchProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SpotifyTrack[]>([]);
   const [loading, setLoading] = useState(false);
   const [searching, setSearching] = useState(false);
+  const [addingTrack, setAddingTrack] = useState<string | null>(null);
   const { toast } = useToast();
-
   const searchTracks = async () => {
     if (!query.trim()) return;
-
     setSearching(true);
     try {
       const response = await fetch('/api/music/search', {
@@ -42,11 +37,9 @@ export default function TrackSearch({ partyId, onTrackAdded }: TrackSearchProps)
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query })
       });
-
       if (!response.ok) {
         throw new Error('Search failed');
       }
-
       const data = await response.json();
       setResults(data.tracks || []);
     } catch (error) {
@@ -59,9 +52,8 @@ export default function TrackSearch({ partyId, onTrackAdded }: TrackSearchProps)
       setSearching(false);
     }
   };
-
   const addTrack = async (track: SpotifyTrack) => {
-    setLoading(true);
+    setAddingTrack(track.id);
     try {
       const response = await fetch(`/api/parties/${partyId}/tracks`, {
         method: 'POST',
@@ -76,46 +68,41 @@ export default function TrackSearch({ partyId, onTrackAdded }: TrackSearchProps)
           previewUrl: track.uri
         })
       });
-
       if (!response.ok) {
-        throw new Error('Failed to add track');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to add track');
       }
-
       toast({
         title: 'Track added!',
         description: `${track.name} has been added to the queue`,
       });
-
       // Clear search
       setQuery('');
       setResults([]);
-      
       // Notify parent
       if (onTrackAdded) {
         onTrackAdded();
       }
     } catch (error) {
+      console.error('[ERROR]' + ' ' + 'Error adding track:', error);
       toast({
         title: 'Failed to add track',
-        description: 'Please try again',
+        description: error instanceof Error ? error.message : 'Please try again',
         variant: 'destructive'
       });
     } finally {
-      setLoading(false);
+      setAddingTrack(null);
     }
   };
-
   const formatDuration = (ms: number) => {
     const minutes = Math.floor(ms / 60000);
     const seconds = Math.floor((ms % 60000) / 1000);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
-
   // Helper function to get album image safely
   const getAlbumImage = (track: SpotifyTrack) => {
     return track.album?.images?.[0]?.url || null;
   };
-
   return (
     <div className="space-y-4">
       {/* Search Bar */}
@@ -132,7 +119,6 @@ export default function TrackSearch({ partyId, onTrackAdded }: TrackSearchProps)
           Search
         </Button>
       </div>
-
       {/* Search Results */}
       {results.length > 0 && (
         <Card className="p-4">
@@ -140,7 +126,6 @@ export default function TrackSearch({ partyId, onTrackAdded }: TrackSearchProps)
           <div className="space-y-2 max-h-96 overflow-y-auto">
             {results.map((track) => {
               const albumImage = getAlbumImage(track);
-              
               return (
                 <div
                   key={track.id}
@@ -153,6 +138,7 @@ export default function TrackSearch({ partyId, onTrackAdded }: TrackSearchProps)
                         src={albumImage}
                         alt={track.album.name}
                         fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
                         className="rounded object-cover"
                       />
                     ) : (
@@ -161,7 +147,6 @@ export default function TrackSearch({ partyId, onTrackAdded }: TrackSearchProps)
                       </div>
                     )}
                   </div>
-
                   {/* Track Info */}
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm truncate">{track.name}</p>
@@ -169,19 +154,21 @@ export default function TrackSearch({ partyId, onTrackAdded }: TrackSearchProps)
                       {track.artists.map(a => a.name).join(', ')} • {track.album.name}
                     </p>
                   </div>
-
                   {/* Duration */}
                   <span className="text-xs text-muted-foreground">
                     {formatDuration(track.duration_ms)}
                   </span>
-
                   {/* Add Button */}
                   <Button
                     size="sm"
                     onClick={() => addTrack(track)}
-                    disabled={loading}
+                    disabled={addingTrack === track.id}
                   >
-                    <Plus className="w-4 h-4" />
+                    {addingTrack === track.id ? (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Plus className="w-4 h-4" />
+                    )}
                   </Button>
                 </div>
               );

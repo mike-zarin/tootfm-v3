@@ -1,5 +1,4 @@
 "use client"
-
 import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
@@ -8,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Users, Music } from "lucide-react"
-
 interface Party {
   id: string
   code: string
@@ -23,44 +21,37 @@ interface Party {
     artist: string
   }
 }
-
 export default function PartyListPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [parties, setParties] = useState<Party[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/auth/signin")
       return
     }
-    
     if (status === "authenticated") {
       fetchParties()
     }
   }, [status, router])
-
   const fetchParties = async () => {
     try {
       setError(null)
       const res = await fetch("/api/parties")
-      
       if (!res.ok) {
         throw new Error(`Failed to fetch parties: ${res.statusText}`)
       }
-      
       const data = await res.json()
       setParties(Array.isArray(data) ? data : [])
     } catch (error) {
-      console.error("Failed to fetch parties:", error)
+      console.error('[ERROR]' + ' ' + "Failed to fetch parties:", error)
       setError(error instanceof Error ? error.message : "Failed to load parties")
     } finally {
       setLoading(false)
     }
   }
-
   const getStatusColor = (status: Party["status"]) => {
     switch (status) {
       case "ACTIVE": return "bg-green-500"
@@ -70,7 +61,6 @@ export default function PartyListPage() {
       default: return "bg-gray-400"
     }
   }
-
   if (status === "loading" || loading) {
     return (
       <div className="container mx-auto p-4 flex items-center justify-center min-h-[400px]">
@@ -81,7 +71,6 @@ export default function PartyListPage() {
       </div>
     )
   }
-
   if (error) {
     return (
       <div className="container mx-auto p-4">
@@ -99,7 +88,6 @@ export default function PartyListPage() {
       </div>
     )
   }
-
   return (
     <div className="container mx-auto p-4 max-w-6xl">
       <div className="flex items-center justify-between mb-8">
@@ -109,7 +97,6 @@ export default function PartyListPage() {
             Create or join a party to start sharing music
           </p>
         </div>
-        
         <div className="flex gap-2">
           <Link href="/party/join">
             <Button variant="outline">
@@ -125,7 +112,6 @@ export default function PartyListPage() {
           </Link>
         </div>
       </div>
-
       {parties.length === 0 ? (
         <Card className="text-center py-12">
           <CardContent>
@@ -173,7 +159,6 @@ export default function PartyListPage() {
                       <span>{party.trackCount || 0} tracks</span>
                     </div>
                   </div>
-                  
                   {party.currentTrack && party.status === "ACTIVE" && (
                     <div className="mt-3 pt-3 border-t">
                       <p className="text-xs text-muted-foreground">Now playing:</p>
@@ -185,12 +170,10 @@ export default function PartyListPage() {
                       </p>
                     </div>
                   )}
-                  
                   {party.hostId === session?.user?.id && (
                     <div className="mt-3">
                       <Badge variant="outline" className="text-xs">
                       You&apos;re the host
-
                       </Badge>
                     </div>
                   )}

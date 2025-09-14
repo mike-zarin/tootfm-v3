@@ -1,20 +1,16 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Music } from 'lucide-react';
-
 declare global {
   interface Window {
     MusicKit: any;
   }
 }
-
 export function AppleMusicConnect() {
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
     // Load MusicKit JS
     if (!window.MusicKit) {
@@ -24,32 +20,25 @@ export function AppleMusicConnect() {
       document.head.appendChild(script);
     }
   }, []);
-
   const handleConnect = async () => {
     setIsConnecting(true);
     setError(null);
-    
     try {
       // Get developer token from backend
       const tokenResponse = await fetch('/api/auth/apple-music/login');
-      
       if (!tokenResponse.ok) {
         throw new Error('Failed to get developer token');
       }
-      
       const { developerToken } = await tokenResponse.json();
-      
       // Wait for MusicKit to load
       let attempts = 0;
       while (!window.MusicKit && attempts < 20) {
         await new Promise(resolve => setTimeout(resolve, 100));
         attempts++;
       }
-      
       if (!window.MusicKit) {
         throw new Error('MusicKit failed to load');
       }
-      
       // Configure MusicKit
       await window.MusicKit.configure({
         developerToken,
@@ -58,19 +47,14 @@ export function AppleMusicConnect() {
           build: '1.0.0'
         }
       });
-      
       // Get music instance
       const music = window.MusicKit.getInstance();
-      
       // Authorize user - this will open Apple Music login popup
       const musicUserToken = await music.authorize();
-      
       if (!musicUserToken) {
         throw new Error('User cancelled authorization');
       }
-      
       console.log('Music User Token obtained:', musicUserToken.substring(0, 20) + '...');
-      
       // Save token to backend
       const saveResponse = await fetch('/api/auth/apple-music/callback', {
         method: 'POST',
@@ -79,20 +63,17 @@ export function AppleMusicConnect() {
         },
         body: JSON.stringify({ musicUserToken }),
       });
-      
       if (!saveResponse.ok) {
         throw new Error('Failed to save Apple Music profile');
       }
-      
       setIsConnected(true);
     } catch (error) {
-      console.error('Apple Music connection failed:', error);
+      console.error('[ERROR]' + ' ' + 'Apple Music connection failed:', error);
       setError(error instanceof Error ? error.message : 'Connection failed');
     } finally {
       setIsConnecting(false);
     }
   };
-
   if (isConnected) {
     return (
       <div className="flex items-center gap-2 text-green-600">
@@ -101,7 +82,6 @@ export function AppleMusicConnect() {
       </div>
     );
   }
-
   return (
     <div className="space-y-2">
       <Button

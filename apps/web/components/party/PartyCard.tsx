@@ -1,13 +1,10 @@
 "use client"
-
-
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Music, Users, Clock } from 'lucide-react';
-
 interface PartyCardProps {
   party: {
     id: string;
@@ -22,7 +19,6 @@ interface PartyCardProps {
   };
   isHost?: boolean;
 }
-
 export function PartyCard({ party, isHost = false }: PartyCardProps) {
   const statusColor = {
     WAITING: 'secondary',
@@ -30,7 +26,6 @@ export function PartyCard({ party, isHost = false }: PartyCardProps) {
     PAUSED: 'outline',
     ENDED: 'destructive'
   }[party.status] || 'secondary';
-  
   return (
     <Link href={`/party/${party.id}`}>
       <Card className="hover:border-purple-500 transition-all cursor-pointer">
@@ -43,7 +38,6 @@ export function PartyCard({ party, isHost = false }: PartyCardProps) {
             <p className="text-sm text-gray-400 mt-2">{party.description}</p>
           )}
         </CardHeader>
-        
         <CardContent>
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-4">
@@ -56,12 +50,10 @@ export function PartyCard({ party, isHost = false }: PartyCardProps) {
                 {party._count.tracks}
               </span>
             </div>
-            
             <div className="font-mono text-purple-400">
               {party.code}
             </div>
           </div>
-          
           {isHost && (
             <div className="mt-3 pt-3 border-t border-gray-800">
               <span className="text-xs text-purple-400">You are the host</span>

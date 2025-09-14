@@ -2,7 +2,6 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { storage } from '@/lib/storage';
-
 interface AudioFeatures {
   danceability: number;
   energy: number;
@@ -13,7 +12,6 @@ interface AudioFeatures {
   speechiness: number;
   tempo: number;
 }
-
 interface SpotifyTrack {
   id: string;
   name: string;
@@ -22,14 +20,12 @@ interface SpotifyTrack {
     images: Array<{ url: string }>;
   };
 }
-
 interface SpotifyArtist {
   id: string;
   name: string;
   images: Array<{ url: string }>;
   genres: string[];
 }
-
 async function refreshSpotifyToken(refreshToken: string): Promise<string | null> {
   try {
     const response = await fetch('https://accounts.spotify.com/api/token', {
@@ -45,31 +41,27 @@ async function refreshSpotifyToken(refreshToken: string): Promise<string | null>
         refresh_token: refreshToken
       })
     });
-
     if (response.ok) {
       const data = await response.json();
       return data.access_token;
     }
     return null;
   } catch (error) {
-    console.error('Error refreshing token:', error);
+    console.error('[ERROR]' + ' ' + 'Error refreshing token:', error);
     return null;
   }
 }
-
 export async function GET() {
   try {
     const session = await getServerSession();
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
     // ВАЖНО: getUserByEmail это async функция!
     const user = await storage.getUserByEmail(session.user.email);
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
-
     // Проверяем Spotify подключение
     if (!user.spotifyProfile?.accessToken) {
       return NextResponse.json({ 
@@ -77,14 +69,11 @@ export async function GET() {
         musicPortrait: null
       }, { status: 200 });
     }
-
     // Проверяем не истёк ли токен
     let accessToken = user.spotifyProfile.accessToken;
     const now = new Date();
     const expiresAt = new Date(user.spotifyProfile.expiresAt);
-    
     if (now >= expiresAt && user.spotifyProfile.refreshToken) {
-      console.log('Token expired, refreshing...');
       const newToken = await refreshSpotifyToken(user.spotifyProfile.refreshToken);
       if (newToken) {
         accessToken = newToken;
@@ -103,7 +92,6 @@ export async function GET() {
         }, { status: 401 });
       }
     }
-
     // Получаем top tracks
     const topTracksResponse = await fetch(
       'https://api.spotify.com/v1/me/top/tracks?limit=20&time_range=medium_term',
@@ -113,17 +101,14 @@ export async function GET() {
         }
       }
     );
-
     if (!topTracksResponse.ok) {
-      console.error('Failed to fetch top tracks:', await topTracksResponse.text());
+      console.error('[ERROR]' + ' ' + '[ERROR] Failed to fetch top tracks:', await topTracksResponse.text());
       return NextResponse.json({ 
         error: 'Failed to fetch Spotify data',
         musicPortrait: null
       }, { status: 500 });
     }
-
     const topTracksData = await topTracksResponse.json();
-
     // Получаем top artists
     const topArtistsResponse = await fetch(
       'https://api.spotify.com/v1/me/top/artists?limit=20&time_range=medium_term',
@@ -133,9 +118,7 @@ export async function GET() {
         }
       }
     );
-
     const topArtistsData = await topArtistsResponse.json();
-
     // Получаем audio features для треков
     const trackIds = topTracksData.items.map((track: SpotifyTrack) => track.id).join(',');
     const audioFeaturesResponse = await fetch(
@@ -146,9 +129,7 @@ export async function GET() {
         }
       }
     );
-
     const audioFeaturesData = await audioFeaturesResponse.json();
-
     // Вычисляем средние значения audio features
     const avgFeatures: AudioFeatures = {
       danceability: 0,
@@ -160,7 +141,6 @@ export async function GET() {
       speechiness: 0,
       tempo: 0
     };
-
     if (audioFeaturesData.audio_features) {
       audioFeaturesData.audio_features.forEach((features: any) => {
         if (features) {
@@ -174,7 +154,6 @@ export async function GET() {
           avgFeatures.tempo += features.tempo;
         }
       });
-
       const count = audioFeaturesData.audio_features.filter((f: any) => f).length;
       if (count > 0) {
         Object.keys(avgFeatures).forEach(key => {
@@ -184,16 +163,22 @@ export async function GET() {
         });
       }
     }
-
+    // ИСПРАВЛЕНИЕ БАГА 3: Добавляем отладку для жанров
+    console.log('Top artists genres:', topArtistsData.items.map((a: SpotifyArtist) => ({ name: a.name, genres: a.genres })));
+    
     // Собираем жанры
     const genres = new Set<string>();
     topArtistsData.items.forEach((artist: SpotifyArtist) => {
       artist.genres.forEach(genre => genres.add(genre));
     });
-
+    
+    console.log('Collected genres count:', genres.size);
+    console.log('Collected genres:', Array.from(genres));
     // Формируем портрет
     const musicPortrait = {
-      source: 'spotify',
+      id: `portrait_${Date.now()}`,
+      userId: user.id,
+      source: 'spotify' as const,
       topTracks: topTracksData.items.slice(0, 10).map((track: SpotifyTrack) => ({
         id: track.id,
         name: track.name,
@@ -211,17 +196,20 @@ export async function GET() {
       partyReadiness: Math.round((avgFeatures.energy + avgFeatures.danceability) / 2),
       generatedAt: new Date().toISOString()
     };
-
+    
+    // ИСПРАВЛЕНИЕ БАГА 3: Дополнительная отладка для genreDistribution
+    console.log('Music portrait topGenres:', musicPortrait.topGenres);
+    console.log('Music portrait partyReadiness:', musicPortrait.partyReadiness);
+    console.log('Audio features:', musicPortrait.audioFeatures);
+    // Portrait generated successfully
     // Сохраняем портрет в storage
     await storage.updateUser(user.id, { musicPortrait });
-
     return NextResponse.json({ 
       success: true,
       musicPortrait 
     });
-
   } catch (error) {
-    console.error('Error generating music portrait:', error);
+    console.error('[ERROR]' + ' ' + '[ERROR] Error generating music portrait:', error);
     return NextResponse.json({ 
       error: 'Failed to generate music portrait',
       musicPortrait: null

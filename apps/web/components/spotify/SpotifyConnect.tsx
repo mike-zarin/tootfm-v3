@@ -1,119 +1,100 @@
 // components/spotify/SpotifyConnect.tsx
 'use client';
-
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Music, Loader2, CheckCircle, X } from 'lucide-react';
-
 export function SpotifyConnect() {
   const { data: session } = useSession();
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [profile, setProfile] = useState<any>(null);
   const [generatingPortrait, setGeneratingPortrait] = useState(false);
-
   useEffect(() => {
     checkSpotifyConnection();
   }, [session]);
-
   const checkSpotifyConnection = async () => {
     if (!session) return;
-    
     try {
       const response = await fetch('/api/auth/spotify/status');
       const data = await response.json();
-      
       if (data.connected) {
         setIsConnected(true);
         setProfile(data.profile);
-        
         // Check if portrait exists, if not - generate it
         checkAndGeneratePortrait();
       }
     } catch (error) {
-      console.error('Failed to check Spotify connection:', error);
+      console.error('[ERROR]' + ' ' + 'Failed to check Spotify connection:', error);
     }
   };
-
   const checkAndGeneratePortrait = async () => {
     try {
       // Check if portrait exists
       const checkResponse = await fetch('/api/music/portrait/status');
       const checkData = await checkResponse.json();
-      
       if (!checkData.exists || checkData.needsRefresh) {
         // Auto-generate portrait
         setGeneratingPortrait(true);
         const portraitResponse = await fetch('/api/music/portrait');
         const portraitData = await portraitResponse.json();
-        
         if (portraitData.musicPortrait) {
-          console.log('Portrait generated successfully!', portraitData.musicPortrait);
           // Trigger a page refresh to show the portrait
           window.location.reload();
         }
       }
     } catch (error) {
-      console.error('Failed to generate portrait:', error);
+      console.error('[ERROR]' + ' ' + 'Failed to generate portrait:', error);
     } finally {
       setGeneratingPortrait(false);
     }
   };
-
   const handleConnect = async () => {
     setIsLoading(true);
     try {
       const response = await fetch('/api/auth/spotify/connect');
       const data = await response.json();
-      
       if (data.url) {
         window.location.href = data.url;
       }
     } catch (error) {
-      console.error('Failed to connect Spotify:', error);
+      console.error('[ERROR]' + ' ' + 'Failed to connect Spotify:', error);
       setIsLoading(false);
     }
   };
-
   const handleDisconnect = async () => {
     if (!confirm('Are you sure you want to disconnect Spotify?')) return;
-    
     setIsLoading(true);
     try {
       const response = await fetch('/api/auth/spotify/disconnect', {
         method: 'POST'
       });
-      
       if (response.ok) {
         setIsConnected(false);
         setProfile(null);
         window.location.reload();
       }
     } catch (error) {
-      console.error('Failed to disconnect Spotify:', error);
+      console.error('[ERROR]' + ' ' + 'Failed to disconnect Spotify:', error);
     } finally {
       setIsLoading(false);
     }
   };
-
   const handleRefreshPortrait = async () => {
     setGeneratingPortrait(true);
     try {
       const response = await fetch('/api/music/portrait');
       const data = await response.json();
-      
       if (data.musicPortrait) {
         window.location.reload();
       }
     } catch (error) {
-      console.error('Failed to refresh portrait:', error);
+      console.error('[ERROR]' + ' ' + 'Failed to refresh portrait:', error);
     } finally {
       setGeneratingPortrait(false);
     }
   };
-
   if (generatingPortrait) {
     return (
       <Card className="p-6">
@@ -124,7 +105,6 @@ export function SpotifyConnect() {
       </Card>
     );
   }
-
   if (isConnected && profile) {
     return (
       <Card className="p-6">
@@ -141,7 +121,6 @@ export function SpotifyConnect() {
             </div>
             <CheckCircle className="h-5 w-5 text-green-500" />
           </div>
-          
           <div className="flex space-x-2">
             <Button
               onClick={handleRefreshPortrait}
@@ -165,7 +144,6 @@ export function SpotifyConnect() {
       </Card>
     );
   }
-
   return (
     <Card className="p-6">
       <div className="space-y-4">
@@ -178,7 +156,6 @@ export function SpotifyConnect() {
             <p className="text-sm text-muted-foreground">Not connected</p>
           </div>
         </div>
-        
         <Button
           onClick={handleConnect}
           disabled={isLoading}

@@ -1,6 +1,4 @@
 "use client"
-
-
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
@@ -8,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2 } from 'lucide-react';
-
 export function CreatePartyForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -16,28 +13,23 @@ export function CreatePartyForm() {
     name: '',
     description: ''
   });
-  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
     try {
       const res = await fetch('/api/parties', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
-      
       if (!res.ok) throw new Error('Failed to create party');
-      
       const party = await res.json();
       router.push(`/party/${party.id}`);
     } catch (_error) {
-      // console.error('Error creating party:', error);
+      // console.error('[ERROR]' + ' ' + 'Error creating party:', error);
       setLoading(false);
     }
   };
-  
   return (
     <Card className="max-w-md mx-auto">
       <CardHeader>
@@ -56,7 +48,6 @@ export function CreatePartyForm() {
               placeholder="Friday Night Vibes"
             />
           </div>
-          
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Description (optional)
@@ -67,7 +58,6 @@ export function CreatePartyForm() {
               placeholder="Let's party!"
             />
           </div>
-          
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? (
               <>
