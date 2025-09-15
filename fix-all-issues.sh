@@ -30,10 +30,18 @@ echo "----------------------------------------"
 # Проверяем существование .env.local
 if [ ! -f "apps/web/.env.local" ]; then
     echo -e "${RED}❌ .env.local не найден${NC}"
-    echo -e "${YELLOW}📝 Создаю .env.local...${NC}"
+    echo -e "${YELLOW}📝 Создаю .env.local из template...${NC}"
     
-    cat > apps/web/.env.local << 'EOF'
+    if [ -f "apps/web/.env.example" ]; then
+        cp apps/web/.env.example apps/web/.env.local
+        echo -e "${GREEN}✅ .env.local создан из .env.example${NC}"
+    else
+        echo -e "${RED}❌ .env.example не найден${NC}"
+        echo -e "${YELLOW}📝 Создаю .env.local вручную...${NC}"
+        
+        cat > apps/web/.env.local << 'EOF'
 # TootFM v3 - Local Environment Variables
+# ⚠️  ВАЖНО: Заполните реальные значения!
 NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=your-nextauth-secret-key-here
 GOOGLE_CLIENT_ID=your-google-client-id
@@ -44,9 +52,12 @@ SPOTIFY_REDIRECT_URI=http://localhost:3000/api/auth/spotify/callback
 NODE_ENV=development
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 EOF
+        
+        echo -e "${GREEN}✅ .env.local создан${NC}"
+    fi
     
-    echo -e "${GREEN}✅ .env.local создан${NC}"
     echo -e "${YELLOW}⚠️  ВАЖНО: Заполните реальные значения в .env.local${NC}"
+    echo -e "${RED}🚨 НЕ КОММИТЬТЕ .env.local В GIT!${NC}"
 else
     echo -e "${GREEN}✅ .env.local уже существует${NC}"
 fi
