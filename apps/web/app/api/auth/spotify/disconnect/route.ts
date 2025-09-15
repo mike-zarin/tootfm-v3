@@ -6,8 +6,6 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { storage } from '@/lib/storage-factory';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 export async function POST(request: NextRequest) {
   try {

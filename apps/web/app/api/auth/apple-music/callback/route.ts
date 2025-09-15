@@ -2,8 +2,6 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 // app/api/auth/apple-music/callback/route.ts
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';

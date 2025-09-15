@@ -1,8 +1,6 @@
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
@@ -111,4 +109,3 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   return searchTracks(request);
 }
-export const revalidate = 3600; // Cache for 1 hour

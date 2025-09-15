@@ -51,15 +51,23 @@ export function SpotifyConnect() {
     }
   };
   const handleConnect = async () => {
-    setIsLoading(true);
     try {
-      const response = await fetch('/api/auth/spotify/connect');
-      const data = await response.json();
-      if (data.url) {
-        window.location.href = data.url;
-      }
+      setIsLoading(true);
+      
+      // BUILD URL DIRECTLY - NO API CALL!
+      const params = new URLSearchParams({
+        client_id: '68a7ea6587af43cc893cc0994a584eff',
+        response_type: 'code',
+        redirect_uri: 'https://tootfm.world/api/auth/spotify/callback',
+        scope: 'user-read-email user-read-private user-top-read user-read-recently-played user-library-read playlist-read-private playlist-read-collaborative streaming user-read-playback-state user-modify-playback-state user-read-currently-playing',
+        state: 'default'
+      });
+      
+      // DIRECT BROWSER REDIRECT - NO FETCH!
+      window.location.href = `https://accounts.spotify.com/authorize?${params.toString()}`;
+      
     } catch (error) {
-      console.error('[ERROR]' + ' ' + 'Failed to connect Spotify:', error);
+      console.error('Spotify connection error:', error);
       setIsLoading(false);
     }
   };

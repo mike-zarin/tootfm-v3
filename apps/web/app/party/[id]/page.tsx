@@ -17,6 +17,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import type { Track } from '@/types';
+
+export async function generateStaticParams() {
+  return [];
+}
+
 export default async function PartyPage({
   params
 }: {
