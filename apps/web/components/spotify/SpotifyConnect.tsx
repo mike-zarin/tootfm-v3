@@ -50,26 +50,18 @@ export function SpotifyConnect() {
       setGeneratingPortrait(false);
     }
   };
-  const handleConnect = async () => {
-    try {
-      setIsLoading(true);
-      
-      // BUILD URL DIRECTLY - NO API CALL!
-      const params = new URLSearchParams({
-        client_id: '68a7ea6587af43cc893cc0994a584eff',
-        response_type: 'code',
-        redirect_uri: 'https://tootfm.world/api/auth/spotify/callback',
-        scope: 'user-read-email user-read-private user-top-read user-read-recently-played user-library-read playlist-read-private playlist-read-collaborative streaming user-read-playback-state user-modify-playback-state user-read-currently-playing',
-        state: 'default'
-      });
-      
-      // DIRECT BROWSER REDIRECT - NO FETCH!
-      window.location.href = `https://accounts.spotify.com/authorize?${params.toString()}`;
-      
-    } catch (error) {
-      console.error('Spotify connection error:', error);
-      setIsLoading(false);
-    }
+  const handleConnect = () => {
+    // NO ASYNC, NO FETCH - DIRECT REDIRECT!
+    const params = new URLSearchParams({
+      client_id: '68a7ea6587af43cc893cc0994a584eff',
+      response_type: 'code',
+      redirect_uri: 'https://tootfm.world/api/auth/spotify/callback',
+      scope: 'user-read-email user-read-private user-top-read user-read-recently-played user-library-read playlist-read-private playlist-read-collaborative streaming user-read-playback-state user-modify-playback-state user-read-currently-playing',
+      state: 'default'
+    });
+    
+    // DIRECT BROWSER REDIRECT - NO API CALL!
+    window.location.href = `https://accounts.spotify.com/authorize?${params.toString()}`;
   };
   const handleDisconnect = async () => {
     if (!confirm('Are you sure you want to disconnect Spotify?')) return;
