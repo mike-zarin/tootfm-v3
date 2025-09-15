@@ -5,6 +5,7 @@ export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth-options';
 import { storage } from '@/lib/storage-factory';
 interface AudioFeatures {
   danceability: number;
@@ -57,7 +58,7 @@ async function refreshSpotifyToken(refreshToken: string): Promise<string | null>
 }
 export async function GET() {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

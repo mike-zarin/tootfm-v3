@@ -143,15 +143,9 @@ export function SpotifyConnect() {
             <p className="text-sm text-muted-foreground">Not connected</p>
           </div>
         </div>
-        {/* Use a regular link styled as button! */}
+        {/* Use NextAuth Spotify provider */}
         <a 
-          href={`https://accounts.spotify.com/authorize?${new URLSearchParams({
-            client_id: '68a7ea6587af43cc893cc0994a584eff',
-            response_type: 'code',
-            redirect_uri: 'https://tootfm.world/api/auth/spotify/callback',
-            scope: 'user-read-email user-read-private user-top-read user-read-recently-played user-library-read playlist-read-private playlist-read-collaborative streaming user-read-playback-state user-modify-playback-state user-read-currently-playing',
-            state: 'default'
-          }).toString()}`}
+          href="/api/auth/signin/spotify"
           className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-green-500 text-white hover:bg-green-600 h-10 px-4 py-2 w-full"
         >
           Connect Spotify
