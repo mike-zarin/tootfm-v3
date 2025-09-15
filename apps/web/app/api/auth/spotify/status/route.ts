@@ -1,7 +1,7 @@
 // apps/web/app/api/auth/spotify/status/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { storage } from '@/lib/storage';
+import { storage } from '@/lib/storage-factory';
 export async function GET(request: NextRequest) {
   try {
     // Получаем сессию пользователя

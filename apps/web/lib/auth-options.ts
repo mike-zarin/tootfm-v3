@@ -2,7 +2,7 @@
 import { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 // SpotifyProvider удален - используем кастомный callback
-import { storage } from '@/lib/storage';
+import { storage } from '@/lib/storage-factory';
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({

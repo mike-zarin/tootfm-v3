@@ -3,7 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authConfig } from '@/lib/auth-config';
-import { storage } from '@/lib/storage';
+import { storage } from '@/lib/storage-factory';
 import { z } from 'zod';
 import { triggerMemberJoined, triggerPlaylistUpdated } from '@/lib/pusher-server';
 const joinPartySchema = z.object({

@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { storage } from "@/lib/storage";
+import { storage } from "@/lib/storage-factory";
 import { Party } from "@/types";
 import { PartyPopper, Users, User, LogOut } from 'lucide-react';
 import { Button } from "@/components/ui/button";

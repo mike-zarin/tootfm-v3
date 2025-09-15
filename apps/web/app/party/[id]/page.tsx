@@ -2,7 +2,7 @@
 import { notFound } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
-import { storage } from '@/lib/storage';
+import { storage } from '@/lib/storage-factory';
 import Link from 'next/link';
 import { SpotifyPlayer } from '@/components/spotify/SpotifyPlayer';
 import { SpotifyConnect } from '@/components/spotify/SpotifyConnect';

@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
-import { createVote } from '@/lib/storage';
+import { storage } from '@/lib/storage-factory';
 import { triggerTrackVoted } from '@/lib/pusher-server';
 import { z } from 'zod';
 const voteSchema = z.object({
@@ -22,7 +22,7 @@ export async function POST(
     }
     const body = await request.json();
     const { type } = voteSchema.parse(body);
-    const vote = await createVote({
+    const vote = await storage.createVote({
       id: `vote_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       userId: session.user.id,
       trackId: params.trackId,

@@ -1,7 +1,7 @@
 // app/api/music/portrait/route.ts
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { storage } from '@/lib/storage';
+import { storage } from '@/lib/storage-factory';
 interface AudioFeatures {
   danceability: number;
   energy: number;

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
-import { storage } from '@/lib/storage';
+import { storage } from '@/lib/storage-factory';
 import { getSpotifyClient } from '@/lib/spotify';
 // Play/Resume
 export async function PUT(request: NextRequest) {

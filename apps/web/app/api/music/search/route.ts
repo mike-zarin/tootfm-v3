@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
-import { getSpotifyProfile } from '@/lib/storage';
+import { storage } from '@/lib/storage-factory';
 const SPOTIFY_API = 'https://api.spotify.com/v1';
 async function searchTracks(request: NextRequest) {
   try {
@@ -38,7 +38,7 @@ async function searchTracks(request: NextRequest) {
       );
     }
     // Get Spotify profile
-    const spotifyProfile = await getSpotifyProfile(session.user.id);
+    const spotifyProfile = await storage.getSpotifyProfile(session.user.id);
     if (!spotifyProfile) {
       return NextResponse.json(
         { error: 'Spotify not connected' },

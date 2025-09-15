@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
-import { storage } from "@/lib/storage";
+import { storage } from "@/lib/storage-factory";
 import { randomBytes } from "crypto";
 import { triggerMemberJoined, triggerPlaylistUpdated } from "@/lib/pusher-server";
 // Secure party code generation with higher entropy
