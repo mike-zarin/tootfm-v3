@@ -1,3 +1,6 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // apps/web/app/api/auth/spotify/login/route.ts
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;

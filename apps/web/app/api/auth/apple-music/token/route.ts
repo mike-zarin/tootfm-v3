@@ -1,4 +1,10 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // apps/web/app/api/auth/apple-music/token/route.ts
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { NextRequest, NextResponse } from 'next/server';
 import { generateAppleMusicToken } from '@/lib/apple-music-jwt';
 

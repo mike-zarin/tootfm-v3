@@ -1,3 +1,6 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // apps/web/app/api/parties/[id]/route.ts
 // ИСПРАВЛЕННАЯ ВЕРСИЯ с правильной обработкой user ID
 import { NextRequest, NextResponse } from 'next/server';
