@@ -63,11 +63,12 @@ export default async function HomePage() {
             </CardHeader>
             <CardContent>
               {!user?.spotifyProfile && (
-                <Link href="/api/auth/spotify/connect">
-                  <Button className="w-full bg-green-500 hover:bg-green-600">
-                    Connect Spotify
-                  </Button>
-                </Link>
+                <a 
+                  href="https://accounts.spotify.com/authorize?client_id=68a7ea6587af43cc893cc0994a584eff&response_type=code&redirect_uri=https://tootfm.world/api/auth/spotify/callback&scope=user-read-email%20user-read-private%20user-top-read%20user-read-recently-played%20user-library-read%20playlist-read-private%20playlist-read-collaborative%20streaming%20user-read-playback-state%20user-modify-playback-state%20user-read-currently-playing&state=default"
+                  className="w-full bg-green-500 text-white rounded-lg px-6 py-3 font-medium hover:bg-green-600 transition-colors inline-block text-center"
+                >
+                  Connect Spotify
+                </a>
               )}
               {user?.spotifyProfile && (
                 <div className="space-y-2">
