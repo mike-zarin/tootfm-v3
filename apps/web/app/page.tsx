@@ -9,7 +9,7 @@ import { PartyPopper, Users, User, LogOut } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AppleMusicConnect } from '@/components/apple-music/AppleMusicConnect';
-import { MusicPortraitDisplay } from '@/components/music/MusicPortraitDisplay';
+import { EnhancedMusicPortrait } from '@/components/music/MusicPortraitDisplay';
 
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
@@ -118,7 +118,7 @@ export default async function HomePage() {
         {(user?.spotifyProfile || user?.appleMusicProfile) && (
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-white mb-4">Your Music Portrait</h2>
-            <MusicPortraitDisplay />
+            <EnhancedMusicPortrait />
           </div>
         )}
 
