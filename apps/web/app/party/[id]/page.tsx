@@ -1,4 +1,7 @@
 // apps/web/app/party/[id]/page.tsx
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { notFound } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
@@ -12,6 +15,7 @@ import { CopyCodeButton } from '@/components/party/CopyCodeButton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import type { Track } from '@/types';
 export default async function PartyPage({
   params
@@ -37,7 +41,8 @@ export default async function PartyPage({
   const spotifyProfile = user.spotifyProfile || await storage.getSpotifyProfile(user.id);
   const hasSpotify = !!(spotifyProfile?.accessToken);
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900">
+    <ErrorBoundary>
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900">
         <div className="container mx-auto px-4 py-8">
           <Link 
             href="/"
@@ -260,5 +265,6 @@ export default async function PartyPage({
           </div>
         </div>
       </div>
+    </ErrorBoundary>
   );
 }

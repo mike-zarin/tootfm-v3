@@ -1,4 +1,7 @@
 // app/api/music/portrait/route.ts
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { storage } from '@/lib/storage-factory';
@@ -129,7 +132,17 @@ export async function GET() {
         }
       }
     );
+    
+    if (!audioFeaturesResponse.ok) {
+      console.error('[ERROR] Failed to fetch audio features:', await audioFeaturesResponse.text());
+      return NextResponse.json({ 
+        error: 'Failed to fetch audio features',
+        musicPortrait: null
+      }, { status: 500 });
+    }
+    
     const audioFeaturesData = await audioFeaturesResponse.json();
+    console.log('Audio features response:', JSON.stringify(audioFeaturesData, null, 2));
     // Вычисляем средние значения audio features
     const avgFeatures: AudioFeatures = {
       danceability: 0,
@@ -141,27 +154,51 @@ export async function GET() {
       speechiness: 0,
       tempo: 0
     };
-    if (audioFeaturesData.audio_features) {
-      audioFeaturesData.audio_features.forEach((features: any) => {
-        if (features) {
-          avgFeatures.danceability += features.danceability;
-          avgFeatures.energy += features.energy;
-          avgFeatures.valence += features.valence;
-          avgFeatures.acousticness += features.acousticness;
-          avgFeatures.instrumentalness += features.instrumentalness;
-          avgFeatures.liveness += features.liveness;
-          avgFeatures.speechiness += features.speechiness;
-          avgFeatures.tempo += features.tempo;
-        }
-      });
-      const count = audioFeaturesData.audio_features.filter((f: any) => f).length;
-      if (count > 0) {
-        Object.keys(avgFeatures).forEach(key => {
-          avgFeatures[key as keyof AudioFeatures] = 
-            Math.round((avgFeatures[key as keyof AudioFeatures] / count) * 
-            (key === 'tempo' ? 1 : 100));
+    
+    console.log('Audio features data structure:', {
+      hasAudioFeatures: !!audioFeaturesData.audio_features,
+      audioFeaturesLength: audioFeaturesData.audio_features?.length,
+      firstFeature: audioFeaturesData.audio_features?.[0]
+    });
+    
+    if (audioFeaturesData.audio_features && Array.isArray(audioFeaturesData.audio_features)) {
+      const validFeatures = audioFeaturesData.audio_features.filter((features: any) => 
+        features && 
+        typeof features.danceability === 'number' &&
+        typeof features.energy === 'number' &&
+        typeof features.valence === 'number'
+      );
+      
+      console.log('Valid features count:', validFeatures.length);
+      
+      if (validFeatures.length > 0) {
+        validFeatures.forEach((features: any) => {
+          avgFeatures.danceability += features.danceability || 0;
+          avgFeatures.energy += features.energy || 0;
+          avgFeatures.valence += features.valence || 0;
+          avgFeatures.acousticness += features.acousticness || 0;
+          avgFeatures.instrumentalness += features.instrumentalness || 0;
+          avgFeatures.liveness += features.liveness || 0;
+          avgFeatures.speechiness += features.speechiness || 0;
+          avgFeatures.tempo += features.tempo || 0;
         });
+        
+        const count = validFeatures.length;
+        avgFeatures.danceability = Math.round((avgFeatures.danceability / count) * 100);
+        avgFeatures.energy = Math.round((avgFeatures.energy / count) * 100);
+        avgFeatures.valence = Math.round((avgFeatures.valence / count) * 100);
+        avgFeatures.acousticness = Math.round((avgFeatures.acousticness / count) * 100);
+        avgFeatures.instrumentalness = Math.round((avgFeatures.instrumentalness / count) * 100);
+        avgFeatures.liveness = Math.round((avgFeatures.liveness / count) * 100);
+        avgFeatures.speechiness = Math.round((avgFeatures.speechiness / count) * 100);
+        avgFeatures.tempo = Math.round(avgFeatures.tempo / count);
+        
+        console.log('Calculated average features:', avgFeatures);
+      } else {
+        console.warn('No valid audio features found in response');
       }
+    } else {
+      console.warn('Audio features data is missing or invalid:', audioFeaturesData);
     }
     // ИСПРАВЛЕНИЕ БАГА 3: Добавляем отладку для жанров
     console.log('Top artists genres:', topArtistsData.items.map((a: SpotifyArtist) => ({ name: a.name, genres: a.genres })));

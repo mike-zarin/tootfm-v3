@@ -12,10 +12,10 @@ export async function GET(request: NextRequest) {
       success: true
     });
   } catch (error) {
-    console.error('[ERROR]' + ' ' + 'Error generating Apple Music token:', error);
+    console.error('[Apple Music] Token generation failed:', error);
     return NextResponse.json(
-      { error: 'Failed to generate Apple Music token' },
-      { status: 500 }
+      { error: 'Service temporarily unavailable' },
+      { status: 503 }
     );
   }
 }

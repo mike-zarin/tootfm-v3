@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AppleMusicConnect } from '@/components/apple-music/AppleMusicConnect';
 import { EnhancedMusicPortrait } from '@/components/music/MusicPortraitDisplay';
+import { SignOutButton } from '@/components/auth/SignOutButton';
 
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
@@ -43,18 +44,7 @@ export default async function HomePage() {
             <span className="text-sm text-gray-200">
               {session.user?.email}
             </span>
-            <form
-              action={async () => {
-                "use server";
-                const { signOut } = await import("next-auth/react");
-                await signOut();
-              }}
-            >
-              <Button type="submit" variant="ghost" className="text-white hover:bg-white/10">
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
-              </Button>
-            </form>
+            <SignOutButton />
           </div>
         </header>
 

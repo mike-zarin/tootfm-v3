@@ -1,4 +1,7 @@
 // apps/web/app/api/auth/spotify/status/route.ts
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { storage } from '@/lib/storage-factory';
