@@ -50,19 +50,6 @@ export function SpotifyConnect() {
       setGeneratingPortrait(false);
     }
   };
-  const handleConnect = () => {
-    // NO ASYNC, NO FETCH - DIRECT REDIRECT!
-    const params = new URLSearchParams({
-      client_id: '68a7ea6587af43cc893cc0994a584eff',
-      response_type: 'code',
-      redirect_uri: 'https://tootfm.world/api/auth/spotify/callback',
-      scope: 'user-read-email user-read-private user-top-read user-read-recently-played user-library-read playlist-read-private playlist-read-collaborative streaming user-read-playback-state user-modify-playback-state user-read-currently-playing',
-      state: 'default'
-    });
-    
-    // DIRECT BROWSER REDIRECT - NO API CALL!
-    window.location.href = `https://accounts.spotify.com/authorize?${params.toString()}`;
-  };
   const handleDisconnect = async () => {
     if (!confirm('Are you sure you want to disconnect Spotify?')) return;
     setIsLoading(true);
@@ -156,20 +143,19 @@ export function SpotifyConnect() {
             <p className="text-sm text-muted-foreground">Not connected</p>
           </div>
         </div>
-        <Button
-          onClick={handleConnect}
-          disabled={isLoading}
-          className="w-full bg-green-500 hover:bg-green-600"
+        {/* Use a regular link styled as button! */}
+        <a 
+          href={`https://accounts.spotify.com/authorize?${new URLSearchParams({
+            client_id: '68a7ea6587af43cc893cc0994a584eff',
+            response_type: 'code',
+            redirect_uri: 'https://tootfm.world/api/auth/spotify/callback',
+            scope: 'user-read-email user-read-private user-top-read user-read-recently-played user-library-read playlist-read-private playlist-read-collaborative streaming user-read-playback-state user-modify-playback-state user-read-currently-playing',
+            state: 'default'
+          }).toString()}`}
+          className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-green-500 text-white hover:bg-green-600 h-10 px-4 py-2 w-full"
         >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Connecting...
-            </>
-          ) : (
-            'Connect Spotify'
-          )}
-        </Button>
+          Connect Spotify
+        </a>
       </div>
     </Card>
   );
