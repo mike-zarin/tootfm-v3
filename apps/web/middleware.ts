@@ -1,68 +1,67 @@
-// apps/web/middleware.ts
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { getToken } from 'next-auth/jwt';
-
-// Simple in-memory rate limiting
-const rateLimit = new Map();
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { getToken } from 'next-auth/jwt'
 
 export async function middleware(request: NextRequest) {
-  // Basic rate limiting for API routes
-  if (request.nextUrl.pathname.startsWith('/api/')) {
-    const ip = request.ip ?? '127.0.0.1';
-    const windowMs = 60 * 1000; // 1 minute
-    const limit = 100; // requests per minute
-    
-    const now = Date.now();
-    const windowStart = now - windowMs;
-    
-    if (!rateLimit.has(ip)) {
-      rateLimit.set(ip, []);
-    }
-    
-    const requests = rateLimit.get(ip).filter((time: number) => time > windowStart);
-    requests.push(now);
-    rateLimit.set(ip, requests);
-    
-    if (requests.length > limit) {
-      return NextResponse.json(
-        { error: 'Too many requests' },
-        { status: 429 }
-      );
-    }
-  }
-
-  // Auth logic
-  const token = await getToken({ req: request });
-  const isAuthPage = request.nextUrl.pathname.startsWith('/auth');
+  const { pathname } = request.nextUrl
   
-  // После авторизации Spotify сохраняем профиль
-  if (request.nextUrl.pathname === '/' && token?.spotifyAccessToken) {
-    const session = token as any;
-    if (session.shouldUpdateSpotifyProfile) {
-      // Вызываем callback для сохранения
-      return NextResponse.redirect(new URL('/api/auth/spotify/callback', request.url));
-    }
+  // Публичные пути, которые НЕ требуют авторизации
+  const publicPaths = [
+    '/auth/signin',
+    '/auth/error', 
+    '/auth/callback',
+    '/api/auth',
+    '/_next',
+    '/favicon.ico',
+    '/test', // Тестовая страница
+    '/party', // Страницы вечеринок
+  ]
+  
+  // Проверяем, является ли путь публичным
+  const isPublicPath = publicPaths.some(path => pathname.startsWith(path))
+  
+  // Для публичных путей - пропускаем без проверки
+  if (isPublicPath) {
+    return NextResponse.next()
   }
   
-  if (!token && !isAuthPage) {
-    return NextResponse.redirect(new URL('/auth/signin', request.url));
+  // Для API routes (кроме auth) - тоже пропускаем
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next()
   }
   
-  if (token && isAuthPage && request.nextUrl.pathname !== '/auth/signout') {
-    return NextResponse.redirect(new URL('/', request.url));
-  }
-
-  // Add security headers
-  const response = NextResponse.next();
-  response.headers.set('X-Frame-Options', 'DENY');
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('X-XSS-Protection', '1; mode=block');
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  // Получаем токен сессии
+  const token = await getToken({ 
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET,
+    // ВАЖНО: для production
+    secureCookie: process.env.NODE_ENV === 'production',
+  })
   
-  return response;
+  // Для главной страницы разрешаем доступ всем (редирект обрабатывается в page.tsx)
+  if (pathname === '/') {
+    return NextResponse.next()
+  }
+  
+  // Если нет токена и путь требует авторизации
+  if (!token) {
+    const signInUrl = new URL('/auth/signin', request.url)
+    signInUrl.searchParams.set('callbackUrl', pathname)
+    return NextResponse.redirect(signInUrl)
+  }
+  
+  return NextResponse.next()
 }
+
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
-};
+  matcher: [
+    /*
+     * Match all request paths except:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)  
+     * - favicon.ico (favicon file)
+     * - public files
+     */
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.gif|.*\\.svg).*)',
+  ],
+}

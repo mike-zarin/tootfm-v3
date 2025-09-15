@@ -1,0 +1,122 @@
+🔍 ПОИСК ВСЕХ РЕДИРЕКТОВ В ПРОЕКТЕ
+===================================
+
+1. ПРОВЕРКА page.tsx (главная страница):
+-----------------------------------------
+Файл: apps/web/app/page.tsx
+Ищем редиректы...
+Найдено:
+- Строка 5: import { redirect } from "next/navigation";
+- Строка 20: //   redirect("/auth/signin"); (закомментировано)
+
+2. ПРОВЕРКА layout.tsx:
+-----------------------
+Файл: apps/web/app/layout.tsx
+Результат: Нет редиректов
+
+3. ПРОВЕРКА providers.tsx:
+--------------------------
+Файл: apps/web/app/providers.tsx
+Результат: Нет редиректов
+
+4. ПРОВЕРКА auth/signin/page.tsx:
+----------------------------------
+Файл: apps/web/app/auth/signin/page.tsx
+Результат: Нет редиректов
+
+5. ПРОВЕРКА auth-options.ts redirect callback:
+-----------------------------------------------
+Файл: apps/web/lib/auth-options.ts
+Callback функция redirect (строки 81-87):
+async redirect({ url, baseUrl }) {
+  // Allows relative callback URLs
+  if (url.startsWith("/")) return `${baseUrl}${url}`;
+  // Allows callback URLs on the same origin
+  else if (new URL(url).origin === baseUrl) return url;
+  return baseUrl;
+},
+
+6. ПРОВЕРКА [...nextauth]/route.ts:
+------------------------------------
+Файл: apps/web/app/api/auth/[...nextauth]/route.ts
+Содержимое:
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+export const runtime = 'nodejs';
+
+import NextAuth from 'next-auth';
+import { authOptions } from '@/lib/auth-options';
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };
+
+7. ВСЕ ФАЙЛЫ С redirect() из 'next/navigation':
+------------------------------------------------
+Найдено 3 файла:
+- apps/web/app/party/[id]/page.tsx - импорт notFound
+- apps/web/app/auth/signin/page.tsx - импорт useSearchParams
+- apps/web/app/auth/error/page.tsx - импорт useSearchParams
+
+8. ПРОВЕРКА СЕРВЕРНЫХ КОМПОНЕНТОВ С getServerSession:
+------------------------------------------------------
+Найдено 45 использований в 18 файлах:
+- apps/web/app/page.tsx - 2 использования
+- apps/web/app/party/[id]/page.tsx - 1 использование
+- apps/web/app/api/auth/spotify/status/route.ts - 1 использование
+- apps/web/app/api/music/portrait/route.ts - 1 использование
+- apps/web/app/api/auth/spotify/disconnect/route.ts - 2 использования
+- apps/web/app/api/parties/[id]/route.ts - 3 использования
+- apps/web/app/api/parties/[id]/tracks/route.ts - 2 использования
+- apps/web/app/api/parties/[id]/tracks/[trackId]/vote/route.ts - 1 использование
+- apps/web/app/api/parties/route.ts - 2 использования
+- apps/web/app/api/parties/join/route.ts - 1 использование
+- apps/web/app/api/spotify/player/route.ts - 3 использования
+- apps/web/app/api/auth/spotify/login/route.ts - 1 использование
+- apps/web/app/api/auth/spotify/connect/route.ts - 1 использование
+- apps/web/app/api/auth/spotify/callback/route.ts - 1 использование
+- apps/web/app/api/auth/spotify/refresh/route.ts - 1 использование
+- apps/web/app/api/auth/apple-music/callback/route.ts - 3 использования
+- apps/web/app/api/music/search/route.ts - 1 использование
+- apps/web/app/party/[id]/tracks/[trackId]/vote/route.ts - 1 использование
+
+9. ПРОВЕРКА НА ЦИКЛИЧЕСКИЕ РЕДИРЕКТЫ:
+--------------------------------------
+Ищем паттерны типа:
+- redirect('/') в signin
+- redirect('/auth/signin') в главной
+Результат: Циклических редиректов не найдено
+
+10. ПРОВЕРКА storage-factory.ts:
+---------------------------------
+Проверяем используется ли правильный storage для Vercel:
+Файл: apps/web/lib/storage-factory.ts
+Настройки storage:
+// Use file storage for both development and production
+// Memory storage causes data loss in production
+export const storage = fileStorage;
+
+📊 ИТОГОВЫЙ АНАЛИЗ:
+
+✅ ХОРОШИЕ НОВОСТИ:
+- Циклических редиректов не обнаружено
+- В page.tsx редирект закомментирован (строка 20)
+- auth-options.ts имеет правильную логику redirect callback
+- Storage настроен правильно для production
+- Middleware правильно настроен для обработки аутентификации
+
+⚠️ ПОТЕНЦИАЛЬНЫЕ ПРОБЛЕМЫ:
+- В page.tsx есть закомментированный редирект, который может быть активирован
+- Множество серверных компонентов используют getServerSession, что может вызывать проблемы с middleware
+- В auth-options.ts есть дублирование секции pages (строки 59-62 и 166-169)
+
+🔧 РЕКОМЕНДАЦИИ:
+1. Удалить закомментированный код редиректа из page.tsx
+2. Убрать дублирование секции pages в auth-options.ts
+3. Проверить логику middleware - возможно, есть конфликт между middleware и серверными компонентами
+4. Убедиться, что все API routes правильно обрабатывают аутентификацию
+5. Рассмотреть использование middleware для проверки аутентификации вместо getServerSession в каждом API route
+
+📝 ДОПОЛНИТЕЛЬНЫЕ ЗАМЕЧАНИЯ:
+- Middleware настроен правильно и не должен вызывать циклических редиректов
+- Все пути /party помечены как публичные в middleware, что может быть проблемой безопасности
+- API routes (кроме auth) пропускаются middleware без проверки аутентификации

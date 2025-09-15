@@ -1,12 +1,33 @@
-// apps/web/lib/storage-factory.ts
-// Factory for selecting storage implementation based on environment
+import { MemoryStorage } from './storage-memory'
+import { JsonFileStorage } from './storage'
 
-import { storage as fileStorage } from './storage';
-import { memoryStorage } from './storage-memory';
+// Определяем какой storage использовать
+function createStorage() {
+  // На Vercel ОБЯЗАТЕЛЬНО используем MemoryStorage
+  // потому что файловая система read-only
+  if (process.env.VERCEL || process.env.VERCEL_ENV) {
+    console.log('[Storage] Using MemoryStorage for Vercel deployment')
+    return new MemoryStorage()
+  }
+  
+  // В production (но не на Vercel) тоже используем Memory
+  // для избежания проблем с правами доступа
+  if (process.env.NODE_ENV === 'production') {
+    console.log('[Storage] Using MemoryStorage for production')
+    return new MemoryStorage()
+  }
+  
+  // Только для локальной разработки используем файлы
+  console.log('[Storage] Using JsonFileStorage for development')
+  return new JsonFileStorage()
+}
 
-// Determine which storage to use based on environment
-const isProduction = process.env.NODE_ENV === 'production';
+// Экспортируем правильный storage
+export const storage = createStorage()
+export const fileStorage = storage // для обратной совместимости
+export const memoryStorage = storage // для обратной совместимости
 
-// Use file storage for both development and production
-// Memory storage causes data loss in production
-export const storage = fileStorage;
+// Функция для получения storage (если где-то используется)
+export function getStorage() {
+  return storage
+}

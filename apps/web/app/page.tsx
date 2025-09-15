@@ -15,18 +15,19 @@ import { SignOutButton } from '@/components/auth/SignOutButton';
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
 
-  if (!session?.user?.email) {
-    redirect("/auth/signin");
-  }
+  // Временно отключаем редирект для тестирования
+  // if (!session?.user?.email) {
+  //   redirect("/auth/signin");
+  // }
 
-  // Get user data
-  const user = await storage.getUserByEmail(session.user.email);
+  // Get user data (если есть сессия)
+  const user = session?.user?.email ? await storage.getUserByEmail(session.user.email) : null;
   
-  // Get user's parties
+  // Get user's parties (если есть пользователь)
   const allParties = await storage.getAllParties();
-  const userParties = allParties.filter((party: Party) => 
+  const userParties = user ? allParties.filter((party: Party) => 
     party.hostId === user?.id || party.memberIds?.includes(user?.id || '')
-  );
+  ) : [];
 
   const hostedParties = userParties.filter((party: Party) => party.hostId === user?.id);
   const joinedParties = userParties.filter((party: Party) => party.hostId !== user?.id);
@@ -41,10 +42,21 @@ export default async function HomePage() {
             <p className="text-purple-200">Democratic DJ for your parties</p>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-200">
-              {session.user?.email}
-            </span>
-            <SignOutButton />
+            {session?.user?.email ? (
+              <>
+                <span className="text-sm text-gray-200">
+                  {session.user.email}
+                </span>
+                <SignOutButton />
+              </>
+            ) : (
+              <a 
+                href="/auth/signin"
+                className="bg-white text-purple-900 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+              >
+                Sign In
+              </a>
+            )}
           </div>
         </header>
 
