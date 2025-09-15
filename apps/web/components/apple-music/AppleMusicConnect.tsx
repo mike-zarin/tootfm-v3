@@ -25,7 +25,7 @@ export function AppleMusicConnect() {
     setError(null);
     try {
       // Get developer token from backend
-      const tokenResponse = await fetch('/api/auth/apple-music/login');
+      const tokenResponse = await fetch('/api/auth/apple-music/token');
       if (!tokenResponse.ok) {
         throw new Error('Failed to get developer token');
       }

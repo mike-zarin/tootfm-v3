@@ -1,27 +1,20 @@
-// app/api/auth/apple-music/token/route.ts
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth-options';
+// apps/web/app/api/auth/apple-music/token/route.ts
+import { NextRequest, NextResponse } from 'next/server';
 import { generateAppleMusicToken } from '@/lib/apple-music-jwt';
-export async function GET() {
+
+export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
     // Генерируем developer token для Apple Music
-    const developerToken = await generateAppleMusicToken();
+    const developerToken = generateAppleMusicToken();
+    
     return NextResponse.json({
       developerToken,
-      expiresIn: 3600 // 1 hour
+      success: true
     });
   } catch (error) {
     console.error('[ERROR]' + ' ' + 'Error generating Apple Music token:', error);
     return NextResponse.json(
-      { error: 'Failed to generate token' },
+      { error: 'Failed to generate Apple Music token' },
       { status: 500 }
     );
   }

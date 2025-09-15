@@ -8,6 +8,8 @@ import { Party } from "@/types";
 import { PartyPopper, Users, User, LogOut } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AppleMusicConnect } from '@/components/apple-music/AppleMusicConnect';
+import { MusicPortraitDisplay } from '@/components/music/MusicPortraitDisplay';
 
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
@@ -101,14 +103,24 @@ export default async function HomePage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {!user?.appleMusicProfile && (
-                <Button disabled className="w-full">
-                  Coming Soon
-                </Button>
+              {!user?.appleMusicProfile ? (
+                <AppleMusicConnect />
+              ) : (
+                <div className="flex items-center gap-2 text-green-600">
+                  <span>✅ Apple Music Connected</span>
+                </div>
               )}
             </CardContent>
           </Card>
         </div>
+
+        {/* Music Portrait Section */}
+        {(user?.spotifyProfile || user?.appleMusicProfile) && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-white mb-4">Your Music Portrait</h2>
+            <MusicPortraitDisplay />
+          </div>
+        )}
 
         {/* Party Actions */}
         <div className="flex gap-4 mb-8">
