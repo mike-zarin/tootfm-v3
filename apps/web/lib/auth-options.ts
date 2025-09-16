@@ -48,7 +48,7 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
             name: user.name || '',
             image: user.image || '',
-          }).catch(err => {
+          }).catch((err: unknown) => {
             console.error('[AUTH] Failed to create user:', err)
             // Не блокируем вход если storage недоступен
           })
@@ -57,12 +57,12 @@ export const authOptions: NextAuthOptions = {
         // Сохраняем Spotify токены если есть
         if (account?.provider === 'spotify' && account.access_token) {
           await storage.saveSpotifyProfile({
-            userEmail: user.email,
-            spotifyId: profile?.id as string,
+            email: user.email,
+            spotifyId: (profile as any)?.id as string,
             accessToken: account.access_token,
             refreshToken: account.refresh_token || '',
-            expiresAt: account.expires_at ? new Date(account.expires_at * 1000) : new Date(),
-          }).catch(err => {
+            expiresAt: account.expires_at ? new Date(account.expires_at * 1000).toISOString() : new Date().toISOString(),
+          }).catch((err: unknown) => {
             console.error('[AUTH] Failed to save Spotify profile:', err)
             // Не блокируем вход если storage недоступен
           })

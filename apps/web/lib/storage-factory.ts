@@ -1,25 +1,24 @@
-import { MemoryStorage } from './storage-memory'
-import { JsonFileStorage } from './storage'
+import { memoryStorage as memoryStorageInstance } from './storage-memory'
+import { storage as jsonFileStorageInstance } from './storage'
+import { postgresStorage } from './storage-postgres'
 
 // Определяем какой storage использовать
 function createStorage() {
-  // На Vercel ОБЯЗАТЕЛЬНО используем MemoryStorage
-  // потому что файловая система read-only
-  if (process.env.VERCEL || process.env.VERCEL_ENV) {
-    console.log('[Storage] Using MemoryStorage for Vercel deployment')
-    return new MemoryStorage()
+  // В production используем PostgreSQL если доступен
+  if (process.env.NODE_ENV === 'production' && process.env.POSTGRES_URL) {
+    console.log('[Storage] Using PostgreSQL for production')
+    return postgresStorage
   }
   
-  // В production (но не на Vercel) тоже используем Memory
-  // для избежания проблем с правами доступа
-  if (process.env.NODE_ENV === 'production') {
-    console.log('[Storage] Using MemoryStorage for production')
-    return new MemoryStorage()
+  // На Vercel без PostgreSQL используем MemoryStorage
+  if (process.env.VERCEL || process.env.VERCEL_ENV) {
+    console.log('[Storage] Using MemoryStorage for Vercel deployment')
+    return memoryStorageInstance
   }
   
   // Только для локальной разработки используем файлы
   console.log('[Storage] Using JsonFileStorage for development')
-  return new JsonFileStorage()
+  return jsonFileStorageInstance
 }
 
 // Экспортируем правильный storage

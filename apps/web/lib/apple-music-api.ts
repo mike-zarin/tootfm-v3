@@ -1,5 +1,5 @@
 // lib/apple-music-api.ts
-import { storage } from './storage';
+import { storage } from './storage-factory';
 interface AppleMusicTrack {
   id: string;
   attributes: {
